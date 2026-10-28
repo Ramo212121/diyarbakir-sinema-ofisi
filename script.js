@@ -257,12 +257,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const modal = document.getElementById("filmModal");
   const modalBody = document.getElementById("filmModalBody");
-  const awardPattern = /Ödül|Birincilik|İkincilik|Üçüncülük|Onunculuk|Mansiyon/;
+  // "Birincilik Ödülü", "Mansiyon Ödülü" vb.; festival adındaki "Ödülleri" sayılmaz
+  const awardPattern = /Ödülü/;
 
   const renderList = (title, list) => {
     if (!list.length) return "";
     const items = list.map((text) => `<li>${text}</li>`).join("");
-    return `<h4 class="film-modal__subtitle">${title} <span>${list.length}</span></h4><ul class="film-modal__list">${items}</ul>`;
+    return `<h4 class="film-modal__subtitle">${title}</h4><ul class="film-modal__list">${items}</ul>`;
   };
 
   const openFilm = (card) => {
@@ -295,62 +296,195 @@ document.addEventListener("DOMContentLoaded", () => {
   modal.addEventListener("close", () => document.body.classList.remove("no-scroll"));
 
 
-  /* ---------- Başvuru formu doğrulama ---------- */
-  const form = document.getElementById("applyForm");
-  const success = document.getElementById("formSuccess");
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  /* ---------- Galeri büyük görünüm ---------- */
+  const galleryItems = [...document.querySelectorAll(".gallery__item")];
+  const lightbox = document.getElementById("lightbox");
+  const lightboxImg = document.getElementById("lightboxImg");
+  const lightboxCount = document.getElementById("lightboxCount");
+  let current = 0;
 
-  const messages = {
-    name: "Lütfen adınızı ve soyadınızı yazın.",
-    email: "Geçerli bir e-posta adresi girin.",
-    type: "Lütfen bir yapım türü seçin.",
-    message: "Lütfen projenizi kısaca anlatın (en az 20 karakter).",
+  const showPhoto = (index) => {
+    current = (index + galleryItems.length) % galleryItems.length;
+    const img = galleryItems[current].querySelector("img");
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightboxCount.textContent = `${current + 1} / ${galleryItems.length}`;
   };
 
-  const validateField = (input) => {
-    const field = input.closest(".field");
-    const errorEl = field.querySelector(".field__error");
-    const value = input.value.trim();
-    let valid = true;
-
-    if (input.required && !value) valid = false;
-    if (input.type === "email" && value && !emailPattern.test(value)) valid = false;
-    if (input.name === "message" && value.length < 20) valid = false;
-
-    field.classList.toggle("has-error", !valid);
-    errorEl.textContent = valid ? "" : (messages[input.name] || "Bu alan zorunludur.");
-    return valid;
-  };
-
-  const inputs = form.querySelectorAll("input, select, textarea");
-
-  inputs.forEach((input) => {
-    input.addEventListener("blur", () => { if (input.value) validateField(input); });
-    input.addEventListener("input", () => {
-      if (input.closest(".field").classList.contains("has-error")) validateField(input);
+  galleryItems.forEach((item, i) => {
+    item.addEventListener("click", () => {
+      showPhoto(i);
+      lightbox.showModal();
+      document.body.classList.add("no-scroll");
     });
   });
 
-  form.addEventListener("submit", (e) => {
+  document.getElementById("lightboxPrev").addEventListener("click", () => showPhoto(current - 1));
+  document.getElementById("lightboxNext").addEventListener("click", () => showPhoto(current + 1));
+  document.getElementById("lightboxClose").addEventListener("click", () => lightbox.close());
+  lightbox.addEventListener("click", (e) => { if (e.target === lightbox) lightbox.close(); });
+  lightbox.addEventListener("close", () => document.body.classList.remove("no-scroll"));
+  lightbox.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") showPhoto(current - 1);
+    if (e.key === "ArrowRight") showPhoto(current + 1);
+  });
+
+  // telefonda sağa/sola kaydırarak geçiş
+  let touchX = null;
+  lightbox.addEventListener("touchstart", (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+  lightbox.addEventListener("touchend", (e) => {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) showPhoto(current + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
+
+
+  /* ---------- Casting başvuru formu → Google Forms ---------- */
+  // Yanıtlar Google Forms'a gönderilir; ziyaretçi siteden ayrılmaz.
+  const GOOGLE_FORM_URL =
+    "https://docs.google.com/forms/d/e/1FAIpQLSe5uuttPl6lmiExv28EI3fxtjsFVkEsHq7_xqwoJPau3DcV4Q/formResponse";
+  // Soru başlığı → Google'daki entry numarası. Apps Script'teki logEntryIds() çıktısıyla doldurulur.
+  const ENTRY_IDS = {};
+  // Formda 7 bölüm (sayfa sonu) var; Google çok sayfalı formlarda gezilen sayfaları da ister.
+  const PAGE_HISTORY = "0,1,2,3,4,5,6,7";
+
+  const castingForm = document.getElementById("castingForm");
+  const castingStatus = document.getElementById("castingStatus");
+  const castingSubmit = document.getElementById("castingSubmit");
+  const castingFields = [...castingForm.querySelectorAll("[data-title]")];
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const valuesOf = (field) => {
+    if (field.dataset.kind === "radio" || field.dataset.kind === "check") {
+      return [...field.querySelectorAll("input:checked")].map((i) => i.value);
+    }
+    const v = field.querySelector("input, select, textarea").value.trim();
+    return v ? [v] : [];
+  };
+
+  const isMinor = () =>
+    castingForm.querySelector('[data-title="18 yaşından küçük müsünüz?"] input:checked')?.value === "Evet";
+
+  const validateCasting = (field) => {
+    const values = valuesOf(field);
+    let error = "";
+    const required = field.hasAttribute("data-required") || field.querySelector("[required]") ||
+      (field.hasAttribute("data-minor") && isMinor());
+
+    if (required && !values.length) error = "Bu alan zorunludur.";
+    else if (field.dataset.kind === "email" && values.length && !emailRe.test(values[0])) error = "Geçerli bir e-posta adresi girin.";
+
+    field.classList.toggle("has-error", !!error);
+    field.querySelector(".field__error").textContent = error;
+    return !error;
+  };
+
+  castingFields.forEach((field) => {
+    field.addEventListener("change", () => { if (field.classList.contains("has-error")) validateCasting(field); });
+    field.addEventListener("input", () => { if (field.classList.contains("has-error")) validateCasting(field); });
+  });
+
+  // Form adım adım: her seferinde bir bölüm görünür
+  const steps = [...castingForm.querySelectorAll(".form__section")];
+  const stepPrev = document.getElementById("stepPrev");
+  const stepNext = document.getElementById("stepNext");
+  let step = 0;
+
+  const showStep = (index, scroll = true) => {
+    step = index;
+    steps.forEach((s, i) => s.classList.toggle("is-active", i === step));
+    const last = step === steps.length - 1;
+    stepPrev.hidden = step === 0;
+    stepNext.hidden = last;
+    castingSubmit.hidden = !last;
+    document.getElementById("stepsCurrent").textContent = step + 1;
+    document.getElementById("stepsTotal").textContent = steps.length;
+    document.getElementById("stepsTitle").textContent =
+      steps[step].querySelector(".form__section-title").textContent.replace(/^\d+\.\s*/, "");
+    document.getElementById("stepsFill").style.width = `${((step + 1) / steps.length) * 100}%`;
+    castingStatus.textContent = "";
+    castingStatus.className = "form__status";
+    if (scroll) castingForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const stepIsValid = () => {
+    const invalid = [...steps[step].querySelectorAll("[data-title]")].filter((f) => !validateCasting(f));
+    if (invalid.length) invalid[0].scrollIntoView({ behavior: "smooth", block: "center" });
+    return !invalid.length;
+  };
+
+  stepNext.addEventListener("click", () => { if (stepIsValid()) showStep(step + 1); });
+  stepPrev.addEventListener("click", () => showStep(step - 1));
+  // son adımdan önce Enter'a basılırsa form gönderilmesin, bir sonraki adıma geçilsin
+  castingForm.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && e.target.tagName === "INPUT" && step < steps.length - 1) {
+      e.preventDefault();
+      stepNext.click();
+    }
+  });
+  showStep(0, false);
+
+  // 18 yaş altı seçilince veli alanlarını öne çıkar
+  const minorFields = castingForm.querySelectorAll("[data-minor]");
+  castingForm.addEventListener("change", () => {
+    minorFields.forEach((f) => f.classList.toggle("is-required", isMinor()));
+  });
+
+  castingForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    success.textContent = "";
+    castingStatus.textContent = "";
+    castingStatus.className = "form__status";
 
-    let firstInvalid = null;
-    inputs.forEach((input) => {
-      if (!validateField(input) && !firstInvalid) firstInvalid = input;
-    });
-
-    if (firstInvalid) {
-      firstInvalid.focus();
+    const invalid = castingFields.filter((f) => !validateCasting(f));
+    if (invalid.length) {
+      showStep(steps.indexOf(invalid[0].closest(".form__section")), false);
+      invalid[0].scrollIntoView({ behavior: "smooth", block: "center" });
+      castingStatus.textContent = "Lütfen işaretli alanları kontrol edin.";
+      castingStatus.classList.add("is-error");
       return;
     }
 
-    // Not: Burada gerçek bir sunucuya gönderim (fetch) yapılabilir.
-    const data = Object.fromEntries(new FormData(form));
-    console.log("Başvuru verisi:", data);
+    if (!Object.keys(ENTRY_IDS).length) {
+      castingStatus.textContent = "Form şu an bakımda, lütfen daha sonra tekrar deneyin.";
+      castingStatus.classList.add("is-error");
+      console.warn("ENTRY_IDS boş: Google Form soru numaraları henüz eklenmedi.");
+      return;
+    }
 
-    success.textContent = `Teşekkürler ${data.name.split(" ")[0]}, başvurunuz alındı. En kısa sürede size döneceğiz.`;
-    form.reset();
+    const body = new URLSearchParams();
+    castingFields.forEach((field) => {
+      const id = ENTRY_IDS[field.dataset.title];
+      if (!id) return;
+      const values = valuesOf(field);
+      if (field.dataset.kind === "date" && values.length) {
+        const [y, m, d] = values[0].split("-");
+        body.append(`entry.${id}_year`, y);
+        body.append(`entry.${id}_month`, String(+m));
+        body.append(`entry.${id}_day`, String(+d));
+      } else {
+        values.forEach((v) => body.append(`entry.${id}`, v));
+      }
+    });
+    body.append("pageHistory", PAGE_HISTORY);
+
+    castingSubmit.disabled = true;
+    castingSubmit.textContent = "Gönderiliyor…";
+    try {
+      // Google başka siteden gelen isteğe cevabını okutmaz (no-cors); hata yoksa gönderilmiş sayılır.
+      await fetch(GOOGLE_FORM_URL, { method: "POST", mode: "no-cors", body });
+      castingForm.reset();
+      showStep(0, false);
+      castingStatus.textContent =
+        "Başvurunuz alınmıştır. İlginiz için teşekkür ederiz. Uygun projelerde değerlendirme yapılması halinde sizinle iletişime geçilebilir. Başvurunuz herhangi bir rol veya iş garantisi oluşturmaz.";
+      castingStatus.classList.add("is-success");
+    } catch {
+      castingStatus.textContent = "Bağlantı hatası oluştu, lütfen tekrar deneyin.";
+      castingStatus.classList.add("is-error");
+    } finally {
+      castingSubmit.disabled = false;
+      castingSubmit.textContent = "Başvuruyu gönder";
+    }
   });
 
 
