@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Film Diyarbakır — Sinema Ofisi</title>
+  <meta name="description" content="Film Diyarbakır Sinema Ofisi: Diyarbakır'da çekim yapmak isteyen yapımlara lokasyon, izin ve prodüksiyon desteği.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ÜST MENÜ -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="#top" class="logo" aria-label="Film Diyarbakır ana sayfa">
+        <img src="logo/d.bakır sinema ofisi renkli.png" alt="Diyarbakır Sinema Ofisi" class="logo__img" width="1528" height="558">
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Ana menü">
+        <a href="#basvuru" class="nav__link nav__link--cta">Çekim Başvurusu</a>
+        <a href="#hakkimizda" class="nav__link">Hakkımızda</a>
+        <a href="#hizmetler" class="nav__link">Hizmetler</a>
+        <a href="#projeler" class="nav__link">Projeler</a>
+
+      </nav>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Menüyü aç" aria-expanded="false" aria-controls="nav">
+        <span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- HERO -->
+    <section class="hero">
+      <img src="img/hero.jpg" alt="" class="hero__bg" aria-hidden="true" fetchpriority="high">
+      <div class="hero__grain" aria-hidden="true"></div>
+      <div class="container hero__inner">
+        <p class="eyebrow reveal">Diyarbakır Sinema Ofisi</p>
+        <h1 class="hero__title reveal">
+          Kadraj<br>
+          <span class="outline">burada</span><br>
+          başlar.
+        </h1>
+        <p class="hero__lead reveal">
+          Surların, Dicle'nin ve binlerce yıllık hikâyenin şehrinde çekim yapmak isteyen
+          her yapım için tek kapı: lokasyon, izin ve prodüksiyon desteği.
+        </p>
+        <div class="hero__actions reveal">
+          <a href="#basvuru" class="btn btn--light">Başvuru yap</a>
+          <a href="#projeler" class="btn btn--ghost">Projeleri keşfet</a>
+        </div>
+      </div>
+
+      <div class="hero__strip" aria-hidden="true">
+        <div class="strip__track">
+          <span>SUR</span><span>●</span><span>DİCLE</span><span>●</span><span>HEVSEL</span><span>●</span>
+          <span>ON GÖZLÜ KÖPRÜ</span><span>●</span><span>ZERZEVAN</span><span>●</span><span>ULU CAMİ</span><span>●</span>
+          <span>SUR</span><span>●</span><span>DİCLE</span><span>●</span><span>HEVSEL</span><span>●</span>
+          <span>ON GÖZLÜ KÖPRÜ</span><span>●</span><span>ZERZEVAN</span><span>●</span><span>ULU CAMİ</span><span>●</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- BAŞVURU -->
+    <section class="section" id="basvuru">
+      <div class="container split">
+        <div class="split__label">
+          <span class="section-num">01</span>
+          <h2 class="section-title reveal">Çekim<br>Başvurusu</h2>
+          <p class="muted reveal">Projenizi kısaca anlatın, ekibimiz en geç 3 iş günü içinde size dönsün.</p>
+        </div>
+
+        <form class="form" id="applyForm" novalidate>
+          <div class="form__row">
+            <div class="field">
+              <label for="name">Ad Soyad</label>
+              <input type="text" id="name" name="name" required>
+              <span class="field__error"></span>
+            </div>
+            <div class="field">
+              <label for="email">E-posta</label>
+              <input type="email" id="email" name="email" required>
+              <span class="field__error"></span>
+            </div>
+          </div>
+
+          <div class="form__row">
+            <div class="field">
+              <label for="company">Yapım Şirketi</label>
+              <input type="text" id="company" name="company">
+              <span class="field__error"></span>
+            </div>
+            <div class="field">
+              <label for="type">Yapım Türü</label>
+              <select id="type" name="type" required>
+                <option value="">Seçiniz</option>
+                <option>Uzun metraj</option>
+                <option>Kısa film</option>
+                <option>Dizi</option>
+                <option>Belgesel</option>
+                <option>Reklam / Klip</option>
+              </select>
+              <span class="field__error"></span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="message">Proje Özeti</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+            <span class="field__error"></span>
+          </div>
+
+          <button type="submit" class="btn btn--dark">Gönder</button>
+          <p class="form__success" id="formSuccess" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- HAKKIMIZDA -->
+    <section class="section" id="hakkimizda">
+      <div class="container split">
+        <div class="split__label">
+          <span class="section-num">02</span>
+          <h2 class="section-title reveal">Hakkımızda</h2>
+        </div>
+        <div class="split__content">
+          <p class="big-text reveal">
+            Film Diyarbakır, şehri sinema ve dizi yapımları için erişilebilir kılmak
+            amacıyla kurulan bir sinema ofisidir. Yerli ve yabancı yapımcılarla kamu
+            kurumları, yerel ekipler ve şehir halkı arasında köprü kurar.
+          </p>
+          <p class="reveal">
+            Amacımız Diyarbakır'ın kültürel mirasını beyaz perdeye taşımak, yerel sinema
+            emekçilerine iş imkânı yaratmak ve şehrin sinema hafızasını geleceğe aktarmaktır.
+          </p>
+
+          <div class="stats">
+            <div class="stat reveal">
+              <span class="stat__num" data-count="120">0</span><span class="stat__plus">+</span>
+              <span class="stat__label">Kayıtlı lokasyon</span>
+            </div>
+            <div class="stat reveal">
+              <span class="stat__num" data-count="45">0</span><span class="stat__plus">+</span>
+              <span class="stat__label">Desteklenen yapım</span>
+            </div>
+            <div class="stat reveal">
+              <span class="stat__num" data-count="300">0</span><span class="stat__plus">+</span>
+              <span class="stat__label">Yerel ekip üyesi</span>
+            </div>
+          </div>
+          <p class="note">* Rakamlar örnek amaçlıdır, gerçek verilerle güncellenmelidir.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HİZMETLER -->
+    <section class="section section--dark" id="hizmetler">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-num">03</span>
+          <h2 class="section-title reveal">Hizmetler</h2>
+        </div>
+
+        <div class="services">
+          <article class="service reveal">
+            <span class="service__index">/01</span>
+            <h3>Lokasyon Danışmanlığı</h3>
+            <p>Senaryonuza uygun mekânları birlikte belirliyor, keşif turlarını organize ediyoruz.</p>
+          </article>
+          <article class="service reveal">
+            <span class="service__index">/02</span>
+            <h3>Çekim İzinleri</h3>
+            <p>Valilik, belediyeler ve ilgili kurumlarla izin süreçlerini tek noktadan yürütüyoruz.</p>
+          </article>
+          <article class="service reveal">
+            <span class="service__index">/03</span>
+            <h3>Yerel Ekip & Tedarik</h3>
+            <p>Teknik ekip, figüran, ekipman ve konaklama için yerel ağımızı yapımınıza açıyoruz.</p>
+          </article>
+          <article class="service reveal">
+            <span class="service__index">/04</span>
+            <h3>Eğitim & Atölyeler</h3>
+            <p>Genç sinemacılar için senaryo, görüntü yönetimi ve kurgu atölyeleri düzenliyoruz.</p>
+          </article>
+          <article class="service reveal">
+            <span class="service__index">/05</span>
+            <h3>Sinema Arşivi</h3>
+            <p>Şehrin sinema tarihine dair afiş, fotoğraf ve tanıklıkları derleyip koruyoruz.</p>
+          </article>
+          <article class="service reveal">
+            <span class="service__index">/06</span>
+            <h3>Gösterim & Festival</h3>
+            <p>Açık hava gösterimleri ve festivallerle filmleri şehir halkıyla buluşturuyoruz.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJELER -->
+    <section class="section" id="projeler">
+      <div class="container">
+        <div class="section-head">
+          <span class="section-num">04</span>
+          <h2 class="section-title reveal">Projeler</h2>
+        </div>
+
+        <div class="projects">
+          <article class="project" data-film="gol">
+            <div class="project__img"><img src="movie-img/1.jpg" alt="Bu Da mı Gol Değil! film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2020 · Belgesel</span>
+              <h3><button type="button" class="project__open">Bu Da mı Gol Değil!</button></h3>
+              <p>Feyzi Baran &amp; Kamil Kahraman</p>
+            </div>
+          </article>
+          <article class="project" data-film="baba">
+            <div class="project__img"><img src="movie-img/2.jpg" alt="Baba Ne Oldu film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2021 · Belgesel</span>
+              <h3><button type="button" class="project__open">Baba Ne Oldu</button></h3>
+              <p>Feyzi Baran</p>
+            </div>
+          </article>
+          <article class="project" data-film="dilek">
+            <div class="project__img"><img src="movie-img/3.jpg" alt="Dilek Kutusu film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2023 · Belgesel</span>
+              <h3><button type="button" class="project__open">Dilek Kutusu</button></h3>
+              <p>Büşra Baran &amp; Feyzi Baran</p>
+            </div>
+          </article>
+          <article class="project" data-film="huzur">
+            <div class="project__img"><img src="movie-img/4.jpg" alt="Huzur Çiftliği film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2022 · Belgesel</span>
+              <h3><button type="button" class="project__open">Huzur Çiftliği</button></h3>
+              <p>Feyzi Baran</p>
+            </div>
+          </article>
+          <article class="project" data-film="hatirla">
+            <div class="project__img"><img src="movie-img/5.jpg" alt="Hatırla film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2023 · Kurmaca</span>
+              <h3><button type="button" class="project__open">Hatırla</button></h3>
+              <p>Cemre Tatar</p>
+            </div>
+          </article>
+          <article class="project" data-film="sabirsizlik">
+            <div class="project__img"><img src="movie-img/6.jpg" alt="Time of Impatience film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2020 · Uzun Metraj</span>
+              <h3><button type="button" class="project__open">Time of Impatience</button></h3>
+              <p>Aydın Orak</p>
+            </div>
+          </article>
+          <article class="project" data-film="maske">
+            <div class="project__img"><img src="movie-img/7.jpg" alt="Maskeyi Beklerken film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2020 · Kurmaca</span>
+              <h3><button type="button" class="project__open">Maskeyi Beklerken</button></h3>
+              <p>Feyzi Baran</p>
+            </div>
+          </article>
+          <article class="project" data-film="iyigunler">
+            <div class="project__img"><img src="movie-img/8.jpg" alt="İyi Günler İlerde film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2025 · Belgesel</span>
+              <h3><button type="button" class="project__open">İyi Günler İlerde</button></h3>
+              <p>Feyzi Baran &amp; Kamil Kahraman</p>
+            </div>
+          </article>
+          <article class="project" data-film="onlar">
+            <div class="project__img"><img src="movie-img/9.jpg" alt="Onlar Çocuk film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2026 · Belgesel</span>
+              <h3><button type="button" class="project__open">Onlar Çocuk</button></h3>
+              <p>Feyzi Baran</p>
+            </div>
+          </article>
+          <article class="project" data-film="hayat">
+            <div class="project__img"><img src="movie-img/10.jpg" alt="Hayat Bana Güzelken film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">Kısa Film</span>
+              <h3><button type="button" class="project__open">Hayat Bana Güzelken</button></h3>
+              <p>Zeynel Hebun Güler</p>
+            </div>
+          </article>
+          <article class="project" data-film="dakika">
+            <div class="project__img"><img src="movie-img/11.webp" alt="32 Dakika film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2026 · Belgesel</span>
+              <h3><button type="button" class="project__open">32 Dakika</button></h3>
+              <p>Feyzi Baran</p>
+            </div>
+          </article>
+          <article class="project" data-film="solo">
+            <div class="project__img"><img src="movie-img/12.jpg" alt="Solo film afişi" loading="lazy"></div>
+            <div class="project__body">
+              <span class="tag">2026 · Kurmaca</span>
+              <h3><button type="button" class="project__open">Solo</button></h3>
+              <p>Zeynel Hebun Güler</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>
+        <img src="logo/d.bakır sinema ofisi beyaz.png" alt="Diyarbakır Sinema Ofisi" class="footer__logo" width="1528" height="558" loading="lazy">
+      </div>
+      <div>
+        <p class="footer__muted">İletişim</p>
+        <p>diyarbakirsinemaofisi@gmail.com</p>
+        <p>+90 (501) 139 0136</p>
+      </div>
+      <div>
+        <p class="footer__muted">Adres</p>
+        <p>Yenişehir Mahallesi, Profesör Dr. Selahhatin Yazicioğlu Caddesi</p>
+        <p>Karakoç Plaza no:11 21100</p>
+        <p>Yenişehir, Diyarbakır</p>
+      </div>
+      <div>
+        <p class="footer__muted">Takip et</p>
+        <div class="socials">
+          <a href="#" class="social" aria-label="Instagram"><img src="logo/instagram.jpeg" alt="" class="social__icon social__icon--ig"></a>
+          <a href="#" class="social" aria-label="YouTube"><img src="logo/youtube.webp" alt="" class="social__icon social__icon--yt"></a>
+        </div>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <span>© <span id="year"></span> Film Diyarbakır</span>
+      <a href="#top" class="to-top">Yukarı ↑</a>
+    </div>
+  </footer>
+
+  <!-- FİLM DETAY PENCERESİ -->
+  <dialog class="film-modal" id="filmModal" aria-labelledby="filmModalTitle">
+    <button type="button" class="film-modal__close" id="filmModalClose" aria-label="Kapat">✕</button>
+    <div class="film-modal__head">
+      <img src="" alt="" class="film-modal__poster" id="filmModalPoster">
+      <div>
+        <p class="tag" id="filmModalMeta"></p>
+        <h3 class="film-modal__title" id="filmModalTitle"></h3>
+        <p class="film-modal__credit" id="filmModalCredit"></p>
+      </div>
+    </div>
+    <div class="film-modal__body" id="filmModalBody"></div>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
