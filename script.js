@@ -89,176 +89,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   /* ---------- Film detay penceresi ---------- */
-  const films = {
-    gol: {
-      meta: "2020 · Belgesel · 00:34:28",
-      credit: "Yönetmen: Feyzi Baran, Kamil Kahraman",
-      items: [
-        "4. Bingöl Uluslararası Kısa Film Festivali, Kısa Film Yarışması, Üçüncülük Ödülü. 2022",
-        "6. Türk Dünyası Belgesel Film Festivali, Öğrenci Belgesel Film Yarışması, Birincilik Ödülü. 2021",
-        "71. Berlin Film Festivali, Avrupa Film Pazarı, Türkiye Kataloğu. 2021",
-        "Avrupa Film Pazarı, 74. Cannes Film Festivali, Film Market, Türk Filmleri Kataloğu. 2021",
-        "4. AFSAD Kısa Film Festivali, Belgesel Yarışması, Finalist. 2021",
-        "9. Hak-İş Kısa Film Yarışması, Ulusal Kategori, Onunculuk Ödülü. 2020",
-        "8. Antakya Altın Defne Film Festivali, Ulusal Belgesel Film Yarışması, Finalist. 2020",
-        "2. Erzincan Uluslararası Kısa Film Festivali, Finalist. 2020",
-        "8. Boğaziçi Film Festivali, Ulusal Kısa Belgesel Film Yarışması, Finalist. 2020",
-        "10. Avrupa Birliği İnsan Hakları Kısa Film Yarışması, İnsan Hakları Dalı, Finalist. 2020",
-        "11. TİHV İnsan Hakları Belgesel Film Günleri, Gösterim Seçkisi. 2020",
-        "23. Randevu İstanbul Film Festivali, Geleceğin Sinemacılarından Kısalar Bölümü, Gösterim Seçkisi. 2020",
-        "41. İFSAK Kısa Film ve Belgesel Yarışması, Belgesel Dalı, Finalist. 2021",
-        "16. İşçi Filmleri Festivali, Gösterim Seçkisi. 2021",
-        "1. Harput Kısa Film Festivali, Belgesel Film Yarışması, Finalist. 2021",
-        "1. Kültür Sanat Belgeselleri Film Festivali, Belgesel Film Yarışması, Finalist. 2021",
-        "32. Ankara Film Festivali, Ulusal Belgesel Film Yarışması, Finalist. 2021",
-        "7. Contact Uluslararası Öğrenci Filmleri Festivali, Kısa Film Yarışması, Finalist. 2021",
-        "9. Kayseri Film Festivali, Ulusal Belgesel Film Yarışması, Finalist. 2021",
-        "22. İzmir Kısa Film Festivali, Panorama Bölümü, Gösterim Seçkisi. 2021",
-        "1. İstanbul Nartugan Film Festivali, Finalist ve Gösterim Seçkisi. 2021",
-        "12. Sinepark Kısa Film Festivali, Çarpışan Aramalar Dalı, Finalist. 2022",
-        "13. TRT Belgesel Film Yarışması, Ulusal Öğrenci Belgesel Yarışması, Finalist. 2022",
-        "22. Frankfurt Türk Film Festivali, Belgesel Film Yarışması, Finalist. 2022",
-        "1. Ayancık Film Festivali, Belgesel Film Yarışması, Finalist. 2022",
-        "13. Balkans Beyond Borders Kısa Film Festivali, Kısa Film Yarışması, Finalist. 2022",
-        "Hacettepe Üniversitesi İletişim Fakültesi Belgesel Günleri, Gösterim Seçkisi. 2022",
-        "4. Rotary 2420. Bölge Örsçelik Balkan Kısa Film Yarışması, Finalist. 2023",
-        "Anahtar Film Günleri, Gösterim Seçkisi. 2023",
-        "1. İstanbul Spor Film Festivali, Belgesel Film Dalı, Finalist. 2025",
-        "7. Bingöl Uluslararası Kısa Film Festivali, Özel Gösterim Seçkisi. 2025",
-      ],
-    },
-    baba: {
-      meta: "2021 · Belgesel · 00:08:16",
-      credit: "Yönetmen: Feyzi Baran",
-      items: [
-        "28. Adana Altın Koza Film Festivali, Ulusal Kısa Film Yarışması, Belgesel Dalı, Finalist. 2021",
-        "32. Ankara Film Festivali, Ulusal Belgesel Film Yarışması, Finalist. 2021",
-        "9. SETEM İpekyolu Film Ödülleri, Ulusal Belgesel Film Yarışması, Finalist. 2021",
-        "1. Harput Kısa Film Festivali, Gösterim Seçkisi. 2021",
-      ],
-    },
-    dilek: {
-      meta: "2023 · Belgesel · 00:05:00",
-      credit: "Yönetmen: Feyzi Baran, Büşra Baran",
-      items: [
-        "6. Bingöl Uluslararası Kısa Film Festivali, İkincilik Ödülü. 2024",
-        "7. Siirt Kısa Film Festivali, Kısa Film Yarışması, İkincilik Ödülü. 2024",
-        "2. Mardin Film Festivali, Kısa Film Yarışması, Birincilik Ödülü. 2024",
-        "6. Esaretten Cesarete Kısa Film Yarışması, Belgesel Dalı, En İyi Film Ödülü. 2024",
-        "2. Rotary Barış Filmleri Festivali, Öğrenci Belgesel Kategorisi, En İyi Film Ödülü. 2024",
-        "19. Kar Film Festivali, Belgesel Dalı, Birincilik Ödülü. 2024",
-        "10. EgeArt Sanat Günleri, Kısa Film Yarışması, Belgesel Dalı, İkincilik Ödülü. 2023",
-        "1. Büyüt Hayallerini Kısa Film Yarışması, Birincilik Ödülü. 2023",
-        "3. Yakın Doğu Üniversitesi Sinema Sempozyumu Kısa Film Yarışması, Belgesel Dalı, Jüri Özel Ödülü. 2023",
-        "15. Rotary Kısa Film Festivali, Belgesel Dalı, Birincilik Ödülü. 2023",
-        "3. Kültür Sanat Belgeselleri Film Festivali, Belgesel Film Yarışması, Özgün Yapım Tasarımı Ödülü. 2023",
-        "4. Rotary 2420. Bölge Örsçelik Balkan Kısa Film Yarışması, Finalist. 2023",
-        "13. Sinepark Kısa Film Festivali, Çarpışan Aramalar Dalı, Finalist. 2023",
-        "4. Sinekültür Üniversitelerarası Kısa Film Yarışması, Belgesel Dalı, Finalist. 2023",
-        "2. Gemlik Film Festivali, Kısa Film Yarışması, Finalist. 2023",
-        "5. Directed By Women Turkey, Uluslararası Belgesel Film Yarışması, Finalist. 2023",
-        "8. Filmamed Belgesel Film Festivali, Gösterim Seçkisi. 2023",
-        "Anahtar Film Günleri, Gösterim Seçkisi. 2023",
-        "30. Adana Altın Koza Film Festivali, Öğrenci Kısa Film Yarışması, Belgesel Dalı, Finalist. 2023",
-        "5. Taste of Anatolia Films from Turkey, İngiltere, Gösterim Seçkisi. 2023",
-        "6. Siirt Kısa Film Festivali, Kısa Film Yarışması, Finalist. 2023",
-        "6. Esaretten Cesarete Kısa Film Yarışması, Yarışma Filmi. 2024",
-        "12. Bursa Çocuk Hakları Film Festivali, Yetişkinler Gözünden Çocuk Hakları Bölümü, Gösterim Seçkisi. 2024",
-        "3. Diyarbakır Kısa Film Festivali, Belgesel Dalı, Finalist. 2024",
-        "6. Dostluk Kısa Film Festivali, Kırk Yıllık Hatır Gösterim Seçkisi. 2024",
-        "Anahtar Film Günleri, Gösterim Seçkisi. 2024",
-        "1. KASTOB Kısa Film Yarışması, Finalist. 2024",
-        "5. Aizanoi Kısa Film Festivali, Kamera Eşitliğe Dönsün Yarışması, Finalist. 2025",
-        "4. Büyük Taarruz Kısa Film Festivali, Kısa Film Yarışması, Finalist. 2025",
-        "19. JCI İstanbul Crossroads Kısa Film Yarışması, Finalist. 2025",
-        "Esaretten Cesarete Kısa Film Yarışması, Ödüllü Film Gösterim Seçkisi. 29 Mart 2026",
-      ],
-    },
-    huzur: {
-      meta: "2022 · Belgesel · 00:19:58",
-      credit: "Yönetmen: Feyzi Baran",
-      items: [
-        "1. Dicle Belgesel ve Kısa Film Festivali, Dicle Üniversitesi Özel Ödülü. 2023",
-        "2. İstanbul Nartugan Film Festivali, Ulusal Kısa Belgesel Film Yarışması, En İyi Film Ödülü. 2022",
-        "18. Kar Film Festivali, Belgesel Film Yarışması, Üçüncülük Ödülü. 2022",
-        "20. Kısa-ca Öğrenci Filmleri Festivali, Ulusal Belgesel Dalı, Kemal Öner Özel Ödülü. 2022",
-        "2. Kültür Sanat Belgeselleri Film Festivali, Belgesel Film Yarışması, Finalist. 2022",
-        "1. Luma Kısa Film Festivali, Kısa Film Yarışması, Finalist. 2022",
-        "5. Siirt Kısa Film Festivali, Kısa Film Yarışması, Finalist. 2022",
-        "23. İzmir Kısa Film Festivali, Panorama Bölümü, Gösterim Seçkisi. 2022",
-        "12. Avrupa Birliği İnsan Hakları Kısa Film Yarışması, İklim Değişikliği Kategorisi, Finalist. 2022",
-        "10. Kayseri Altın Çınar Film Festivali, Özel Gösterim Seçkisi. 2022",
-        "13. TİHV İnsan Hakları Belgesel Film Günleri, Gösterim Seçkisi. 2022",
-        "12. Hangi İnsan Hakları? Film Festivali, Ulusal Program, Gösterim Seçkisi. 2022",
-        "15. Rotary Kısa Film Festivali, Belgesel Dalı, Finalist. 2023",
-        "2. TAYF Uluslararası Kısa Film Festivali, Yarışma Dışı Gösterim Seçkisi. 2023",
-        "13. Sinepark Kısa Film Festivali, Çarpışan Aramalar Dalı, Finalist. 2023",
-        "18. İşçi Filmleri Festivali, Gösterim Seçkisi. 2023",
-        "16. Documentarist İstanbul Belgesel Günleri, Başka Dünya Yok Bölümü, Gösterim Seçkisi. 2023",
-        "16. Documentarist İstanbul Belgesel Günleri, Türkiye Panorama Bölümü, Gösterim Seçkisi. 2023",
-        "Avrupa Film Pazarı, 72. Berlin Film Festivali, Film Market, Türk Sineması Kataloğu Seçkisi. 2023",
-      ],
-    },
-    hatirla: {
-      meta: "2023 · Kurmaca",
-      credit: "Yönetmen: Cemre Tatar",
-      items: [
-        "1. Bursa Teknik Üniversitesi, Kısa Film Yarışması, Finalist. 2023",
-        "7. Siirt Kısa Film Festivali, Kısa Film Yarışması, Finalist. 2024",
-      ],
-    },
-    sabirsizlik: {
-      meta: "2020 · Uzun Metraj Kurmaca · 01:30:00",
-      credit: "Yönetmen: Aydın Orak · Feyzi Baran: Uygulayıcı ve Ortak Yapımcı",
-      items: [],
-    },
-    maske: {
-      meta: "2020 · Kurmaca · 00:04:00",
-      credit: "Yönetmen: Feyzi Baran",
-      items: [
-        "1. Mutlu Kısa Film Günleri, Kısa Film Yarışması, Üçüncülük Ödülü. 2022",
-        "1. İki Oda Bir Kısa - Evde Kısa Film Yarışması, 10. Film, Mansiyon Ödülü. 2020",
-        "1. BEGEP Ulusal Kısa Film Yarışması, Yarışma Filmi. 2020",
-      ],
-    },
-    iyigunler: {
-      meta: "2025 · Belgesel · 00:36:00",
-      credit: "Yönetmen: Feyzi Baran, Kamil Kahraman",
-      items: [
-        "1. Bütün Çocuklar Bizim Derneği, Belgesel Film Yarışması, Üçüncülük Ödülü. 2026",
-        "9. Fethiye Belgesel Günleri, Gösterim Seçkisi. 2026",
-        "33. Adana Altın Koza Film Festivali, Özel Gösterimler, Cüneyt Cebenoyan Kısa Film Yarışma Filmleri Bölümü, Gösterim Seçkisi. 2026",
-        "1. Batman Film Festivali, Panorama Bölümü, Gösterim Seçkisi. 2026",
-      ],
-    },
-    onlar: {
-      meta: "2026 · Belgesel (Yapay Zeka) · 00:01:30",
-      credit: "Yönetmen: Feyzi Baran",
-      items: [
-        "11. Türk Dünyası Belgesel Film Festivali, Yapay Zeka Belgesel Film Yarışması, Finalist. 2026",
-        "1. Erenler Film Festivali, Kısa Film Yarışması, Finalist. 2026",
-      ],
-    },
-    hayat: {
-      meta: "Kısa Film",
-      credit: "Yönetmen: Zeynel Hebun Güler",
-      items: [],
-    },
-    dakika: {
-      meta: "2026 · Belgesel",
-      credit: "Yazan / Yöneten: Feyzi Baran",
-      items: [
-        "4. Mardin Film Festivali, Kısa Film Yarışması, Finalist. 2026",
-      ],
-    },
-    solo: {
-      meta: "2026 · Kurmaca",
-      credit: "Yönetmen: Zeynel Hebun Güler",
-      items: [
-        "1. Parla Kısa Film Yarışması, İkincilik Ödülü. 2026",
-      ],
-    },
-  };
+  // Filmlerin bilgileri index.html'de her kartın içindeki gizli .project__info bloğunda durur
+  // (arama motorları da okuyabilsin diye). Ödül eklemek için oradaki listeye <li> eklemek yeter.
 
   const modal = document.getElementById("filmModal");
   const modalBody = document.getElementById("filmModalBody");
@@ -267,12 +99,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const renderList = (title, list) => {
     if (!list.length) return "";
-    const items = list.map((text) => `<li>${text}</li>`).join("");
+    const items = list.map((text) => `<li>${esc(text)}</li>`).join("");
     return `<h4 class="film-modal__subtitle">${title}</h4><ul class="film-modal__list">${items}</ul>`;
   };
 
+  const filmOf = (card) => {
+    const info = card.querySelector(".project__info");
+    return {
+      meta: info.dataset.meta,
+      credit: info.dataset.credit,
+      items: [...info.querySelectorAll("li")].map((li) => li.textContent.trim()),
+    };
+  };
+
+  const esc = (s) => s.replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
+
   const openFilm = (card) => {
-    const film = films[card.dataset.film];
+    const film = filmOf(card);
     const poster = card.querySelector(".project__img img");
 
     document.getElementById("filmModalPoster").src = poster.src;
@@ -367,23 +210,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const SECTIONS = [
       {
         title: "1. Kimlik ve İletişim Bilgileri",
+        short: "Kimlik ve iletişim",
         note: "Size ulaşabilmemiz için temel bilgileriniz.",
         fields: [
           { name: "Adınız ve soyadınız", type: "text", required: true, autocomplete: "name" },
           { name: "Doğum tarihiniz", type: "date", required: true },
-          { name: "18 yaşından küçük müsünüz?", type: "radio", required: true, options: ["Evet", "Hayır"] },
-          { name: "Cinsiyet", type: "radio", required: true, options: ["Kadın", "Erkek"] },
+          { name: "18 yaşından küçük müsünüz?", type: "radio", required: true, half: true, options: ["Evet", "Hayır"] },
+          { name: "Cinsiyet", type: "radio", required: true, half: true, options: ["Kadın", "Erkek"] },
           { name: "Yaşadığınız il", type: "select", required: true, options: ILLER },
           { name: "Yaşadığınız ilçe", type: "text", required: true },
-          { name: "Telefon numaranız", type: "tel", required: true, autocomplete: "tel", full: true, help: "Örnek: 0532 123 45 67", placeholder: "05XX XXX XX XX" },
           { name: "E-posta adresiniz", type: "email", required: true, full: true },
-          { name: "Instagram profil bağlantınız (isteğe bağlı)", type: "text", placeholder: "instagram.com/kullaniciadi", full: true },
+          { name: "Telefon numaranız", type: "tel", required: true, autocomplete: "tel", help: "Örnek: 0532 123 45 67", placeholder: "05XX XXX XX XX" },
+          { name: "Instagram profil bağlantınız (isteğe bağlı)", type: "text", placeholder: "instagram.com/kullaniciadi" },
           { name: "Hakkınızda (kendinizi üç cümle ile ifade ediniz.)", type: "textarea", required: true, full: true },
           { name: "Portre fotografınızı ekleyiniz.", type: "file", required: true, accept: "image/*", hint: "JPG, PNG · büyük fotoğraflar otomatik küçültülür", full: true },
         ],
       },
       {
         title: "2. Başvuru Türü ve Fiziksel Bilgiler",
+        short: "Fiziksel bilgiler",
         note: "Rol eşleştirmesi için kullanılır.",
         fields: [
           { name: "Hangi alanlarda değerlendirilmek istersiniz?", type: "check", required: true, full: true, help: "Birden fazla seçenek seçebilirsiniz.",
@@ -398,6 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       {
         title: "3. Deneyim, Diller ve Yetenekler",
+        short: "Deneyim ve yetenekler",
         note: "Deneyiminiz yoksa sorun değil, deneyimsiz adaylar da başvurabilir.",
         fields: [
           { name: "Daha önce oyunculuk veya figüranlık yaptınız mı?", type: "radio", required: true, options: ["Evet", "Hayır"], full: true },
@@ -413,6 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       {
         title: "4. Fotoğraf, Portföy ve Video",
+        short: "Fotoğraf ve video",
         note: "Profesyonel fotoğraf / portföy çekimine ihtiyacınız varsa “Evet”i seçin, sizinle iletişime geçelim. Kendi fotoğraflarınız varsa “Hayır”ı seçip yükleyin; videolar için herkese açık bir bağlantı paylaşın.",
         fields: [
           { name: "Profesyonel Çekim İstiyorum", type: "radio", required: true, options: ["Evet", "Hayır"], full: true },
@@ -424,6 +271,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       {
         title: "5. Çekimlere Katılım",
+        short: "Çekimlere katılım",
         note: "Uygunluk durumunuz.",
         fields: [
           { name: "Şehir dışındaki çekimlere katılabilir misiniz?", type: "radio", required: true, options: KATILIM, full: true },
@@ -435,6 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       {
         title: "6. Çocuk Oyuncu Başvuruları (yalnızca 18 yaş altı için)",
+        short: "Veli / yasal temsilci",
         note: "Yalnızca 18 yaşından küçük adayların velisi veya yasal temsilcisi doldurmalıdır.",
         minorStep: true,
         fields: [
@@ -446,6 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       {
         title: "7. KVKK Bilgilendirmesi ve Başvuru Beyanı",
+        short: "KVKK ve onay",
         note: "Kişisel verileriniz yalnızca casting değerlendirmesi amacıyla işlenir. Profilinizin yapım şirketleriyle paylaşılmasına izin vermemeniz başvurunuzu engellemez.",
         fields: [
           { name: "Bilgilerinizi doğru verdiğinizi ve başvuru koşullarını okuduğunuzu onaylıyor musunuz?", type: "radio", required: true, mustBe: "Evet, onaylıyorum",
@@ -456,6 +306,7 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       {
         title: "8. Özet ve Gönder",
+        short: "Özet ve gönder",
         note: "Bilgilerinizi kontrol edin. Değiştirmek istediğiniz bölümde “Düzenle”ye basın.",
         summary: true,
         fields: [],
@@ -465,6 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("castingForm");
     const stepsEl = document.getElementById("castingSteps");
     const dotsEl = document.getElementById("castingDots");
+    const vstepsEl = document.getElementById("castingVsteps");
     const statusEl = document.getElementById("castingStatus");
     const prevBtn = document.getElementById("castingPrev");
     const nextBtn = document.getElementById("castingNext");
@@ -535,7 +387,8 @@ document.addEventListener("DOMContentLoaded", () => {
           const group = f.type === "radio" || f.type === "check";
           const star = f.required ? ` <span class="req" aria-hidden="true">*</span>` : "";
           const wrap = document.createElement(group ? "fieldset" : "div");
-          wrap.className = `field${f.full || group || f.type === "textarea" ? " field--full" : ""}`;
+          // seçenekli sorular tam genişlik; half: true olanlar yan yana durur
+          wrap.className = `field${f.full || (group && !f.half) || f.type === "textarea" ? " field--full" : ""}`;
           wrap.innerHTML =
             (group ? `<legend>${esc(f.name)}${star}</legend>` : `<label for="${id}">${esc(f.name)}${star}</label>`) +
             controlHTML(f, id) +
@@ -548,10 +401,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       stepsEl.appendChild(step);
       dotsEl.insertAdjacentHTML("beforeend", `<li><button type="button" class="dot" data-step="${s}" aria-label="${esc(section.title)}">${s + 1}</button></li>`);
+      vstepsEl.insertAdjacentHTML("beforeend", `<li><button type="button" class="vstep" data-step="${s}"><b>${s + 1}</b><span>${esc(section.short)}</span></button></li>`);
     });
 
     const steps = [...stepsEl.children];
+    // üstteki numaralı adımlar (telefon) ve soldaki adım listesi (bilgisayar) aynı şekilde güncellenir
     const dots = [...dotsEl.querySelectorAll(".dot")];
+    const vsteps = [...vstepsEl.querySelectorAll(".vstep")];
+    const stepNavs = [dots, vsteps];
     const LAST = steps.length - 1;
     const MINOR_STEP = SECTIONS.findIndex((s) => s.minorStep);
 
@@ -706,6 +563,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ---------- Adımlar ---------- */
     let current = 0;
     let reached = 0;
+    let baslangic = null; // spam koruması: formla ilk etkileşim zamanı
 
     // 18 yaş altı değilse 6. bölüm atlanır
     const isSkipped = (i) => i === MINOR_STEP && !isMinor();
@@ -728,11 +586,11 @@ document.addEventListener("DOMContentLoaded", () => {
         s.hidden = n !== i;
         s.classList.toggle("is-entering", n === i);
       });
-      dots.forEach((d, n) => {
+      stepNavs.forEach((list) => list.forEach((d, n) => {
         d.classList.toggle("is-current", n === i);
         d.classList.toggle("is-done", n < i || (n <= reached && n !== i));
         d.classList.toggle("is-skipped", isSkipped(n));
-      });
+      }));
 
       prevBtn.hidden = i === 0;
       nextBtn.hidden = i === LAST;
@@ -755,9 +613,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     nextBtn.addEventListener("click", () => { if (stepIsValid(current)) showStep(nextIndex(current, 1)); });
     prevBtn.addEventListener("click", () => showStep(nextIndex(current, -1)));
-    dots.forEach((d, n) => d.addEventListener("click", () => {
+    stepNavs.forEach((list) => list.forEach((d, n) => d.addEventListener("click", () => {
       if (n <= reached && !isSkipped(n) && n !== current) showStep(n);
-    }));
+    })));
 
     // son adımdan önce Enter formu göndermesin, bir sonraki adıma geçsin
     form.addEventListener("keydown", (e) => {
@@ -770,7 +628,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // cevaplar değişince koşullu alanları ve adım çubuğunu güncelle
     form.addEventListener("change", () => {
       updateConditional();
-      dots[MINOR_STEP].classList.toggle("is-skipped", isSkipped(MINOR_STEP));
+      stepNavs.forEach((list) => list[MINOR_STEP].classList.toggle("is-skipped", isSkipped(MINOR_STEP)));
     });
     updateConditional();
 
@@ -881,13 +739,42 @@ document.addEventListener("DOMContentLoaded", () => {
         f.el.querySelector(".field__error").textContent = "";
       });
       reached = 0;
+      baslangic = null; // süre bir sonraki doldurmada yeniden başlar
       updateConditional();
     };
+
+    /* ---------- Spam koruması (botlara karşı; asıl koruma ileride sunucuda) ---------- */
+    const MIN_DOLDURMA_SN = 15;        // 8 adımı bundan kısa sürede bitiren insan olmaz
+    const TEKRAR_BEKLEME_DK = 10;      // aynı tarayıcıdan art arda başvuru arası
+    const SON_GONDERIM = "dso_son_basvuru";
+    const honeypot = form.querySelector('input[name="website"]');
+    // süre, sayfanın açılışından değil formla ilk etkileşimden sayılır (başlangıç: resetForm'un üstünde)
+    form.addEventListener("focusin", () => { if (!baslangic) baslangic = Date.now(); });
+
+    const sonGonderim = () => { try { return Number(localStorage.getItem(SON_GONDERIM)) || 0; } catch { return 0; } };
+    const gonderimiKaydet = () => { try { localStorage.setItem(SON_GONDERIM, String(Date.now())); } catch {} };
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (current !== LAST) return;
       setStatus("");
+
+      // gizli alanı yalnızca botlar doldurur: başarılı görünür ama hiçbir yere gönderilmez
+      if (honeypot.value) {
+        resetForm();
+        showStep(0, { keepStatus: true });
+        setStatus("Başvurunuz başarıyla alındı.", "success");
+        return;
+      }
+      const gecenDk = (Date.now() - sonGonderim()) / 60000;
+      if (gecenDk < TEKRAR_BEKLEME_DK) {
+        setStatus(`Kısa süre önce bu cihazdan bir başvuru gönderildi. Yeni başvuru için lütfen ${Math.ceil(TEKRAR_BEKLEME_DK - gecenDk)} dakika sonra tekrar deneyin.`, "error");
+        return;
+      }
+      if (!baslangic || (Date.now() - baslangic) / 1000 < MIN_DOLDURMA_SN) {
+        setStatus("Form çok hızlı gönderildi. Lütfen bilgilerinizi kontrol edip birkaç saniye sonra tekrar deneyin.", "error");
+        return;
+      }
 
       const invalid = fields.filter((f) => !isSkipped(f.step) && !isHidden(f) && !validate(f));
       if (invalid.length) {
@@ -941,6 +828,7 @@ document.addEventListener("DOMContentLoaded", () => {
           setBusy(true, `Dosyalar yükleniyor (${i + 1}/${files.length})...`);
           await uploadFile(recordId, column, file);
         }
+        gonderimiKaydet();
         resetForm();
         showStep(0, { keepStatus: true });
         setStatus("Başvurunuz başarıyla alındı. İlginiz için teşekkür ederiz; uygun projelerde sizinle iletişime geçilecektir.", "success");

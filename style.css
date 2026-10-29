@@ -1368,3 +1368,140 @@ body.no-scroll { overflow: hidden; }
   .nav__link--cta { padding: 9px 14px; }
   .logo__img { height: 44px; }
 }
+
+/* footer: üstte sarı çizgi, kayıt butonu, tıklanabilir iletişim */
+.footer__link { transition: color .25s; }
+.footer__link:hover { color: var(--accent); }
+.footer__cta {
+  display: inline-block;
+  margin-top: 18px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--black);
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.footer__cta:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 204, 0, .3); }
+
+/* footer üstündeki film şeridi: delikli sarı kenarlar arasında afişler akar */
+.filmstrip {
+  position: relative;
+  overflow: hidden;
+  padding: 12px 0;
+  background: #111;
+  border-top: 2px solid var(--accent);
+}
+.filmstrip::before,
+.filmstrip::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: 6px;
+  background-image: linear-gradient(90deg, var(--accent) 0 10px, transparent 10px);
+  background-size: 20px 6px;
+  opacity: .85;
+}
+.filmstrip::before { top: 3px; }
+.filmstrip::after { bottom: 3px; }
+.filmstrip__track {
+  display: flex;
+  gap: 6px;
+  width: max-content;
+  animation: filmstrip 240s linear infinite; /* yarım şerit 48 kare: kare başına 5 sn */
+}
+.filmstrip:hover .filmstrip__track { animation-play-state: paused; }
+.filmstrip__frame {
+  flex: none;
+  width: 64px;
+  height: 90px;
+  overflow: hidden;
+  border-radius: 3px;
+}
+.filmstrip__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(.35) contrast(1.05);
+}
+@keyframes filmstrip { to { transform: translateX(-50%); } }
+@media (max-width: 600px) {
+  .filmstrip__frame { width: 48px; height: 68px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .filmstrip__track { animation: none; }
+}
+
+/* ==========================================================
+   KAYIT FORMU · solda adım listesi, sağda kompakt form
+   ========================================================== */
+#basvuru .split { grid-template-columns: 270px minmax(0, 660px); gap: 64px; justify-content: center; align-items: start; }
+#basvuru .split__label { position: sticky; top: 96px; }
+#basvuru .section-title { font-size: clamp(30px, 3vw, 40px); line-height: .95; }
+#basvuru .split__label .muted { font-size: 14px; margin-top: 14px; }
+
+/* sol adım listesi: biten siyah, şu anki sarı, atlanan üstü çizili */
+.vsteps { position: relative; margin: 26px 0 0; padding: 0; list-style: none; }
+.vsteps::before { content: ""; position: absolute; left: 13px; top: 14px; bottom: 14px; width: 2px; background: #e6e6e2; }
+.vstep {
+  position: relative; display: flex; align-items: center; gap: 14px; width: 100%; padding: 5px 0;
+  border: 0; background: none; font: inherit; font-size: 13.5px; color: #8a8a85; text-align: left; cursor: default;
+}
+.vstep b {
+  position: relative; z-index: 1; display: grid; place-items: center; flex: none; width: 28px; height: 28px;
+  border: 2px solid #e6e6e2; border-radius: 50%; background: #fff; font: 700 11px var(--font-label); color: #8a8a85;
+  transition: background .3s, border-color .3s, color .3s, box-shadow .3s;
+}
+.vstep.is-done { color: var(--black); cursor: pointer; }
+.vstep.is-done b { background: var(--black); border-color: var(--black); color: var(--accent); }
+.vstep.is-done:hover span { text-decoration: underline; }
+.vstep.is-current { color: var(--black); font-weight: 600; }
+.vstep.is-current b { background: var(--accent); border-color: var(--accent); color: var(--black); box-shadow: 0 0 0 5px rgba(255, 204, 0, .2); }
+.vstep.is-skipped { opacity: .4; text-decoration: line-through; }
+
+/* bilgisayarda adım listesi var; üstteki numaralı adımlar ve giriş yazısı gizli */
+#basvuru .cf .progress, #basvuru .cf__intro { display: none; }
+
+/* kompakt form kartı */
+#basvuru .cf { padding: 28px 32px; border: 1px solid #ececea; border-radius: 18px; box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .18); }
+#basvuru .cf .step__title { font-size: 24px; margin-bottom: 4px; letter-spacing: .01em; }
+#basvuru .cf .step__note { font-size: 13.5px; margin-bottom: 18px; }
+#basvuru .cf .fields { gap: 12px 14px; }
+#basvuru .cf .field > label, #basvuru .cf .field > legend {
+  margin-bottom: 6px; font-family: var(--font-body); font-size: 13px; font-weight: 600; letter-spacing: 0; text-transform: none;
+}
+#basvuru .cf .field input:not([type="radio"]):not([type="checkbox"]):not([type="file"]),
+#basvuru .cf .field select { height: 42px; padding: 8px 12px; font-size: 14.5px; background-color: #fff; border: 1px solid #dededa; border-radius: 9px; }
+#basvuru .cf .field textarea { min-height: 76px; padding: 9px 12px; font-size: 14.5px; background-color: #fff; border: 1px solid #dededa; border-radius: 9px; }
+#basvuru .cf .field input:focus, #basvuru .cf .field select:focus, #basvuru .cf .field textarea:focus { border-color: var(--black); }
+#basvuru .cf .field__help { margin-top: 4px; font-size: 12px; }
+#basvuru .cf .field__error { min-height: 0; margin-top: 4px; }
+#basvuru .cf .field__error:empty { display: none; }
+#basvuru .cf .choice span { padding: 7px 13px; font-size: 13.5px; }
+#basvuru .cf .email { gap: 6px; }
+#basvuru .cf .email .email__domain { padding-right: 34px; }
+#basvuru .cf .drop { min-height: 60px; padding: 10px 12px; }
+#basvuru .cf .drop__icon { width: 40px; height: 40px; font-size: 22px; }
+#basvuru .cf__nav { margin-top: 22px; padding-top: 18px; }
+#basvuru .cf__nav .btn { min-height: 44px; padding: 0 22px; font-size: 15px; }
+
+/* tablet ve telefon: tek sütun, adım listesi yerine üstteki numaralı adımlar */
+@media (max-width: 960px) {
+  #basvuru .split { grid-template-columns: 1fr; gap: 24px; }
+  #basvuru .split__label { position: static; }
+  .vsteps { display: none; }
+  #basvuru .cf .progress { display: block; }
+}
+@media (max-width: 600px) {
+  #basvuru .cf { padding: 22px 18px; }
+}
+
+/* bal tuzağı alanı: ekran dışında, ekran okuyucudan da gizli */
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
