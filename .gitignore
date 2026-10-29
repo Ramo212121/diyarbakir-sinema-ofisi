@@ -5,3 +5,9 @@ google-apps-script/
 
 # Sitenin Airtable token'ı
 config.js
+
+# Orijinal fotoğraflar: site küçültülmüş kopyalarını kullanır (img/hero.jpg, galeri/).
+# Bilgisayarda durur, GitHub'a gitmez.
+background/
+img/*
+!img/hero.jpg
