@@ -1,5 +1,5 @@
 /* ==========================================================
-   Film Diyarbakır — Sinema Ofisi
+   Diyarbakır Sinema Ofisi
    Vanilla JS
    ========================================================== */
 
@@ -351,10 +351,14 @@ document.addEventListener("DOMContentLoaded", () => {
   {
     // Airtable'ın uploadAttachment ucu dosya başına en fazla 5 MB kabul eder
     const MAX_FILE_BYTES = 5 * 1024 * 1024;
+    // Seçilen fotoğraf göndermeden önce küçültüldüğü için daha büyüğü de kabul edilir
+    const MAX_ORIGINAL_BYTES = 25 * 1024 * 1024;
+    // Uzun kenar en fazla bu kadar piksel; Airtable'ın ücretsiz 1 GB alanı daha çok başvuruya yeter
+    const FOTO_UZUN_KENAR = 1600;
 
     const ILLER = ["Diyarbakır", "Mardin", "Batman", "Siirt", "Şanlıurfa", "Gaziantep", "Malatya", "Bingöl", "Elazığ", "Diğer"];
-    // Profesyonel çekim istemeyen adaya fotoğraf/video bağlantıları sorulmaz
-    const PRO_CEKIM = ["Profesyonel Çekim İstiyorum", "Evet"];
+    // Profesyonel çekim isteyen adayın kendi materyali yoktur; bağlantılar yalnızca "Hayır" diyene sorulur
+    const PRO_CEKIM = ["Profesyonel Çekim İstiyorum", "Hayır"];
     const KATILIM = ["Evet", "Hayır"];
     const EMAIL_DOMAINS = ["gmail.com", "hotmail.com", "outlook.com", "icloud.com", "yahoo.com", "yandex.com"];
 
@@ -375,7 +379,7 @@ document.addEventListener("DOMContentLoaded", () => {
           { name: "E-posta adresiniz", type: "email", required: true, full: true },
           { name: "Instagram profil bağlantınız (isteğe bağlı)", type: "text", placeholder: "instagram.com/kullaniciadi", full: true },
           { name: "Hakkınızda (kendinizi üç cümle ile ifade ediniz.)", type: "textarea", required: true, full: true },
-          { name: "Portre fotografınızı ekleyiniz.", type: "file", required: true, accept: "image/*", hint: "JPG, PNG · en fazla 5 MB", full: true },
+          { name: "Portre fotografınızı ekleyiniz.", type: "file", required: true, accept: "image/*", hint: "JPG, PNG · büyük fotoğraflar otomatik küçültülür", full: true },
         ],
       },
       {
@@ -409,11 +413,11 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       {
         title: "4. Fotoğraf, Portföy ve Video",
-        note: "Lütfen erişimi kontrol ettiğiniz, yalnızca başvurunun değerlendirilmesine uygun fotoğraf veya video bağlantıları paylaşın.",
+        note: "Profesyonel fotoğraf / portföy çekimine ihtiyacınız varsa “Evet”i seçin, sizinle iletişime geçelim. Kendi fotoğraflarınız varsa “Hayır”ı seçip yükleyin; videolar için herkese açık bir bağlantı paylaşın.",
         fields: [
           { name: "Profesyonel Çekim İstiyorum", type: "radio", required: true, options: ["Evet", "Hayır"], full: true },
-          { name: "Güncel yüz fotoğrafı bağlantısı (drive linki)", type: "url", showIf: PRO_CEKIM, required: true, help: "Bağlantının paylaşım izinlerini kontrol edin.", placeholder: "https://drive.google.com/...", full: true },
-          { name: "Güncel boy fotoğrafı bağlantısı (drive linki)", type: "url", showIf: PRO_CEKIM, required: true, placeholder: "https://drive.google.com/...", full: true },
+          { name: "Güncel yüz fotoğrafı", type: "file", showIf: PRO_CEKIM, required: true, accept: "image/*", hint: "JPG, PNG · büyük fotoğraflar otomatik küçültülür" },
+          { name: "Güncel boy fotoğrafı", type: "file", showIf: PRO_CEKIM, required: true, accept: "image/*", hint: "JPG, PNG · büyük fotoğraflar otomatik küçültülür" },
           { name: "Tanıtım videosu bağlantısı (Youtube , Drive veya Vimeo)", type: "url", showIf: PRO_CEKIM, placeholder: "https://", full: true },
           { name: "Oyunculuk portföyü / showreel bağlantısı", type: "url", showIf: PRO_CEKIM, placeholder: "https://", full: true },
         ],
@@ -602,7 +606,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const file = fileOf(f);
         const okType = f.accept.split(",").some((a) => (a.endsWith("/*") ? file.type.startsWith(a.slice(0, -1)) : file.type === a));
         if (!okType) error = "Bu dosya türü desteklenmiyor.";
-        else if (file.size > MAX_FILE_BYTES) error = `Dosya en fazla 5 MB olabilir (seçilen: ${formatSize(file.size)}).`;
+        else if (file.size > MAX_ORIGINAL_BYTES) error = `Fotoğraf en fazla 25 MB olabilir (seçilen: ${formatSize(file.size)}).`;
       }
 
       f.el.classList.toggle("has-error", !!error);
@@ -808,6 +812,26 @@ document.addEventListener("DOMContentLoaded", () => {
         reader.readAsDataURL(file);
       });
 
+    // Fotoğraf tarayıcıda küçültülüp JPEG yapılır; açılamazsa (örn. bazı HEIC'ler) orijinali gider
+    const compressImage = async (file) => {
+      try {
+        const bmp = await createImageBitmap(file);
+        const scale = Math.min(1, FOTO_UZUN_KENAR / Math.max(bmp.width, bmp.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(bmp.width * scale);
+        canvas.height = Math.round(bmp.height * scale);
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#fff"; // saydam PNG'ler siyah çıkmasın
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+        const blob = await new Promise((r) => canvas.toBlob(r, "image/jpeg", 0.85));
+        if (!blob || blob.size >= file.size) return file;
+        return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+      } catch {
+        return file;
+      }
+    };
+
     const airtableError = async (res, fallback) => {
       const data = await res.json().catch(() => ({}));
       return new Error(data.error?.message || data.error?.type || `${fallback} (${res.status})`);
@@ -893,6 +917,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (values.length) data[f.name] = f.type === "check" ? values : values[0];
       });
       if (!isMinor()) data["Başvuruyu yapan kişi"] = "Adayın kendisi (18 yaş ve üzeri)";
+
+      // Fotoğraflar kayıttan önce hazırlanır: sığmayan varsa boşuna kayıt oluşturulmaz
+      setBusy(true, "Fotoğraflar hazırlanıyor...");
+      for (const item of files) item.file = await compressImage(item.file);
+      const tooBig = files.find(({ file }) => file.size > MAX_FILE_BYTES);
+      if (tooBig) {
+        setBusy(false);
+        const f = field(tooBig.column);
+        showStep(f.step, { scroll: false });
+        f.el.classList.add("has-error");
+        f.el.querySelector(".field__error").textContent = "Bu fotoğraf küçültülemedi ve 5 MB'tan büyük. Lütfen başka bir fotoğraf seçin.";
+        f.el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setStatus("Lütfen işaretli fotoğrafı değiştirin.", "error");
+        return;
+      }
 
       let recordId = null;
       setBusy(true);

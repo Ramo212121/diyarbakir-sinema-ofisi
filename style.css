@@ -1357,3 +1357,14 @@ body.no-scroll { overflow: hidden; }
 .cf .field input:not([type="radio"]):not([type="checkbox"]):not([type="file"]),
 .cf .field select { height: 52px; }
 .cf .summary__photo { display: block; width: 96px; height: 120px; margin-bottom: 6px; border-radius: var(--radius-sm); object-fit: cover; }
+
+/* masaüstü menü dar ekranda kırılmasın (mobil menü 760px'te devreye girer) */
+@media (min-width: 761px) {
+  .nav__link { white-space: nowrap; }
+}
+@media (min-width: 761px) and (max-width: 960px) {
+  .nav { gap: 18px; }
+  .nav__link { font-size: 14px; }
+  .nav__link--cta { padding: 9px 14px; }
+  .logo__img { height: 44px; }
+}
