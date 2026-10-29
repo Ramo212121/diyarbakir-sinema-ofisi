@@ -1,0 +1,7 @@
+.DS_Store
+
+# Okuma token'ı içerir: GitHub'a gönderilirse tüm başvurular okunabilir
+google-apps-script/
+
+# Sitenin Airtable token'ı
+config.js

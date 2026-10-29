@@ -86,327 +86,32 @@
           </p>
         </div>
 
-        <form class="form casting" id="castingForm" novalidate>
-            <p class="form__intro">
-              Lütfen doğru ve güncel bilgilerinizi yazın. 18 yaş altındaki adaylar için veli/yasal
-              temsilcinin bilgileri gereklidir. <span class="req">*</span> işaretli alanlar zorunludur.
-            </p>
-            <div class="steps" aria-hidden="true">
-              <div class="steps__bar"><span class="steps__fill" id="stepsFill"></span></div>
-              <p class="steps__label"><strong id="stepsCurrent">1</strong> / <span id="stepsTotal">7</span> · <span id="stepsTitle"></span></p>
+        <form class="cf" id="castingForm" novalidate>
+          <p class="cf__intro">
+            Lütfen doğru ve güncel bilgilerinizi yazın. 18 yaş altındaki adaylar için veli/yasal
+            temsilcinin bilgileri gereklidir. <span class="req">*</span> işaretli alanlar zorunludur.
+          </p>
+          <div class="progress" aria-hidden="true">
+            <div class="progress__head">
+              <span><strong id="castingStepNow">1</strong> / <span id="castingStepTotal">8</span></span>
+              <span id="castingStepName"></span>
             </div>
-            <fieldset class="form__section">
-              <legend class="form__section-title">1. Kimlik ve iletişim bilgileri</legend>
-              <div class="field" data-kind="text" data-title="Adınız ve soyadınız">
-                <label for="q1">Adınız ve soyadınız <span class="req" aria-hidden="true">*</span></label>
-                <input type="text" id="q1" name="q1" autocomplete="name" required>
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="date" data-title="Doğum tarihiniz">
-                <label for="q2">Doğum tarihiniz <span class="req" aria-hidden="true">*</span></label>
-                <input type="date" id="q2" name="q2" required>
-                <span class="field__error"></span>
-              </div>
-              <fieldset class="field field--choices" data-kind="radio" data-title="18 yaşından küçük müsünüz?" data-required>
-                <legend>18 yaşından küçük müsünüz? <span class="req" aria-hidden="true">*</span></legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q3" value="Evet"><span>Evet</span></label>
-                  <label class="choice"><input type="radio" name="q3" value="Hayır"><span>Hayır</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Cinsiyet (isteğe bağlı)">
-                <legend>Cinsiyet (isteğe bağlı)</legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q4" value="Kadın"><span>Kadın</span></label>
-                  <label class="choice"><input type="radio" name="q4" value="Erkek"><span>Erkek</span></label>
-                  <label class="choice"><input type="radio" name="q4" value="Belirtmek istemiyorum"><span>Belirtmek istemiyorum</span></label>
-                  <label class="choice"><input type="radio" name="q4" value="Diğer"><span>Diğer</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <div class="field" data-kind="select" data-title="Yaşadığınız il">
-                <label for="q5">Yaşadığınız il <span class="req" aria-hidden="true">*</span></label>
-                <select id="q5" name="q5" required>
-                  <option value="">Seçiniz</option>
-                  <option>Diyarbakır</option>
-                  <option>Mardin</option>
-                  <option>Batman</option>
-                  <option>Siirt</option>
-                  <option>Şanlıurfa</option>
-                  <option>Gaziantep</option>
-                  <option>Malatya</option>
-                  <option>Bingöl</option>
-                  <option>Elazığ</option>
-                  <option>Diğer</option>
-                </select>
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="text" data-title="Yaşadığınız ilçe">
-                <label for="q6">Yaşadığınız ilçe <span class="req" aria-hidden="true">*</span></label>
-                <input type="text" id="q6" name="q6" required>
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="tel" data-title="Telefon numaranız">
-                <label for="q7">Telefon numaranız <span class="req" aria-hidden="true">*</span></label>
-                <span class="field__help">Başında ülke koduyla yazabilirsiniz.</span>
-                <input type="tel" id="q7" name="q7" autocomplete="tel" required>
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="email" data-title="E-posta adresiniz">
-                <label for="q8">E-posta adresiniz</label>
-                <input type="email" id="q8" name="q8" autocomplete="email">
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="text" data-title="Instagram profil bağlantınız (isteğe bağlı)">
-                <label for="q9">Instagram profil bağlantınız (isteğe bağlı)</label>
-                <input type="text" id="q9" name="q9">
-                <span class="field__error"></span>
-              </div>
-            </fieldset>
-            <fieldset class="form__section">
-              <legend class="form__section-title">2. Başvuru türü ve fiziksel bilgiler</legend>
-              <fieldset class="field field--choices" data-kind="check" data-title="Hangi alanlarda değerlendirilmek istersiniz?" data-required>
-                <legend>Hangi alanlarda değerlendirilmek istersiniz? <span class="req" aria-hidden="true">*</span></legend>
-                <div class="choices">
-                  <label class="choice"><input type="checkbox" name="q10" value="Oyuncu"><span>Oyuncu</span></label>
-                  <label class="choice"><input type="checkbox" name="q10" value="Yardımcı oyuncu"><span>Yardımcı oyuncu</span></label>
-                  <label class="choice"><input type="checkbox" name="q10" value="Figüran"><span>Figüran</span></label>
-                  <label class="choice"><input type="checkbox" name="q10" value="Reklam oyuncusu"><span>Reklam oyuncusu</span></label>
-                  <label class="choice"><input type="checkbox" name="q10" value="Çocuk oyuncu (veli/yasal temsilci üzerinden)"><span>Çocuk oyuncu (veli/yasal temsilci üzerinden)</span></label>
-                  <label class="choice"><input type="checkbox" name="q10" value="Diğer"><span>Diğer</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <div class="field" data-kind="text" data-title="Boyunuz (cm)">
-                <label for="q11">Boyunuz (cm) <span class="req" aria-hidden="true">*</span></label>
-                <span class="field__help">Örnek: 174</span>
-                <input type="text" id="q11" name="q11" inputmode="numeric" required>
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="text" data-title="Kilonuz (kg) (isteğe bağlı)">
-                <label for="q12">Kilonuz (kg) (isteğe bağlı)</label>
-                <input type="text" id="q12" name="q12" inputmode="numeric">
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="select" data-title="Göz renginiz (isteğe bağlı)">
-                <label for="q13">Göz renginiz (isteğe bağlı)</label>
-                <select id="q13" name="q13">
-                  <option value="">Seçiniz</option>
-                  <option>Kahverengi</option>
-                  <option>Ela</option>
-                  <option>Mavi</option>
-                  <option>Yeşil</option>
-                  <option>Siyah</option>
-                  <option>Diğer</option>
-                  <option>Belirtmek istemiyorum</option>
-                </select>
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="select" data-title="Saç renginiz (isteğe bağlı)">
-                <label for="q14">Saç renginiz (isteğe bağlı)</label>
-                <select id="q14" name="q14">
-                  <option value="">Seçiniz</option>
-                  <option>Siyah</option>
-                  <option>Kahverengi</option>
-                  <option>Kumral</option>
-                  <option>Sarı</option>
-                  <option>Kızıl</option>
-                  <option>Beyaz / gri</option>
-                  <option>Diğer</option>
-                  <option>Belirtmek istemiyorum</option>
-                </select>
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="text" data-title="Kıyafet bedeniniz (isteğe bağlı)">
-                <label for="q15">Kıyafet bedeniniz (isteğe bağlı)</label>
-                <input type="text" id="q15" name="q15">
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="text" data-title="Ayakkabı numaranız (isteğe bağlı)">
-                <label for="q16">Ayakkabı numaranız (isteğe bağlı)</label>
-                <input type="text" id="q16" name="q16" inputmode="numeric">
-                <span class="field__error"></span>
-              </div>
-            </fieldset>
-            <fieldset class="form__section">
-              <legend class="form__section-title">3. Deneyim, diller ve yetenekler</legend>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Daha önce oyunculuk veya figüranlık yaptınız mı?" data-required>
-                <legend>Daha önce oyunculuk veya figüranlık yaptınız mı? <span class="req" aria-hidden="true">*</span></legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q17" value="Evet"><span>Evet</span></label>
-                  <label class="choice"><input type="radio" name="q17" value="Hayır"><span>Hayır</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <div class="field" data-kind="para" data-title="Yer aldığınız projeler ve roller (varsa)">
-                <label for="q18">Yer aldığınız projeler ve roller (varsa)</label>
-                <textarea id="q18" name="q18" rows="4"></textarea>
-                <span class="field__error"></span>
-              </div>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Oyunculuk eğitimi aldınız mı?">
-                <legend>Oyunculuk eğitimi aldınız mı?</legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q19" value="Evet"><span>Evet</span></label>
-                  <label class="choice"><input type="radio" name="q19" value="Hayır"><span>Hayır</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <div class="field" data-kind="para" data-title="Oyunculuk eğitimleriniz (varsa)">
-                <label for="q20">Oyunculuk eğitimleriniz (varsa)</label>
-                <textarea id="q20" name="q20" rows="4"></textarea>
-                <span class="field__error"></span>
-              </div>
-              <fieldset class="field field--choices" data-kind="check" data-title="Konuşabildiğiniz diller" data-required>
-                <legend>Konuşabildiğiniz diller <span class="req" aria-hidden="true">*</span></legend>
-                <div class="choices">
-                  <label class="choice"><input type="checkbox" name="q21" value="Türkçe"><span>Türkçe</span></label>
-                  <label class="choice"><input type="checkbox" name="q21" value="Kürtçe (Kurmancî)"><span>Kürtçe (Kurmancî)</span></label>
-                  <label class="choice"><input type="checkbox" name="q21" value="Zazaca (Kırmanckî)"><span>Zazaca (Kırmanckî)</span></label>
-                  <label class="choice"><input type="checkbox" name="q21" value="Arapça"><span>Arapça</span></label>
-                  <label class="choice"><input type="checkbox" name="q21" value="İngilizce"><span>İngilizce</span></label>
-                  <label class="choice"><input type="checkbox" name="q21" value="Diğer"><span>Diğer</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <fieldset class="field field--choices" data-kind="check" data-title="Özel becerileriniz (varsa)">
-                <legend>Özel becerileriniz (varsa)</legend>
-                <div class="choices">
-                  <label class="choice"><input type="checkbox" name="q22" value="Araç kullanma"><span>Araç kullanma</span></label>
-                  <label class="choice"><input type="checkbox" name="q22" value="At binme"><span>At binme</span></label>
-                  <label class="choice"><input type="checkbox" name="q22" value="Yüzme"><span>Yüzme</span></label>
-                  <label class="choice"><input type="checkbox" name="q22" value="Dans"><span>Dans</span></label>
-                  <label class="choice"><input type="checkbox" name="q22" value="Müzik aleti çalma"><span>Müzik aleti çalma</span></label>
-                  <label class="choice"><input type="checkbox" name="q22" value="Şarkı söyleme"><span>Şarkı söyleme</span></label>
-                  <label class="choice"><input type="checkbox" name="q22" value="Spor"><span>Spor</span></label>
-                  <label class="choice"><input type="checkbox" name="q22" value="Dövüş sanatları"><span>Dövüş sanatları</span></label>
-                  <label class="choice"><input type="checkbox" name="q22" value="Diğer"><span>Diğer</span></label>
-                  <label class="choice"><input type="checkbox" name="q22" value="Belirtmek istemiyorum"><span>Belirtmek istemiyorum</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <div class="field" data-kind="para" data-title="Özel becerilerinizle ilgili detaylar (isteğe bağlı)">
-                <label for="q23">Özel becerilerinizle ilgili detaylar (isteğe bağlı)</label>
-                <textarea id="q23" name="q23" rows="4"></textarea>
-                <span class="field__error"></span>
-              </div>
-            </fieldset>
-            <fieldset class="form__section">
-              <legend class="form__section-title">4. Fotoğraf, portföy ve video</legend>
-              <p class="form__note">Dosya yüklenmez; lütfen fotoğraf veya videolarınızın bağlantısını (Google Drive, Instagram, YouTube vb.) paylaşın ve bağlantının herkese açık olduğundan emin olun.</p>
-              <div class="field" data-kind="url" data-title="Güncel yüz fotoğrafı bağlantısı">
-                <label for="q25">Güncel yüz fotoğrafı bağlantısı</label>
-                <span class="field__help">Bağlantının paylaşım izinlerini kontrol edin.</span>
-                <input type="url" id="q25" name="q25">
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="url" data-title="Güncel boy fotoğrafı bağlantısı">
-                <label for="q26">Güncel boy fotoğrafı bağlantısı</label>
-                <input type="url" id="q26" name="q26">
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="url" data-title="Tanıtım videosu bağlantısı (isteğe bağlı)">
-                <label for="q27">Tanıtım videosu bağlantısı (isteğe bağlı)</label>
-                <input type="url" id="q27" name="q27">
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="url" data-title="Oyunculuk portföyü / showreel bağlantısı (isteğe bağlı)">
-                <label for="q28">Oyunculuk portföyü / showreel bağlantısı (isteğe bağlı)</label>
-                <input type="url" id="q28" name="q28">
-                <span class="field__error"></span>
-              </div>
-            </fieldset>
-            <fieldset class="form__section">
-              <legend class="form__section-title">5. Çekimlere katılım</legend>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Şehir dışındaki çekimlere katılabilir misiniz?" data-required>
-                <legend>Şehir dışındaki çekimlere katılabilir misiniz? <span class="req" aria-hidden="true">*</span></legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q29" value="Evet"><span>Evet</span></label>
-                  <label class="choice"><input type="radio" name="q29" value="Hayır"><span>Hayır</span></label>
-                  <label class="choice"><input type="radio" name="q29" value="Projeye göre değişir"><span>Projeye göre değişir</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Kısa süreli çekimlere katılabilir misiniz?" data-required>
-                <legend>Kısa süreli çekimlere katılabilir misiniz? <span class="req" aria-hidden="true">*</span></legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q30" value="Evet"><span>Evet</span></label>
-                  <label class="choice"><input type="radio" name="q30" value="Hayır"><span>Hayır</span></label>
-                  <label class="choice"><input type="radio" name="q30" value="Projeye göre değişir"><span>Projeye göre değişir</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Uzun süreli projelerde yer alabilir misiniz?" data-required>
-                <legend>Uzun süreli projelerde yer alabilir misiniz? <span class="req" aria-hidden="true">*</span></legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q31" value="Evet"><span>Evet</span></label>
-                  <label class="choice"><input type="radio" name="q31" value="Hayır"><span>Hayır</span></label>
-                  <label class="choice"><input type="radio" name="q31" value="Projeye göre değişir"><span>Projeye göre değişir</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Bir oyunculuk veya casting ajansına kayıtlı mısınız?">
-                <legend>Bir oyunculuk veya casting ajansına kayıtlı mısınız?</legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q32" value="Evet"><span>Evet</span></label>
-                  <label class="choice"><input type="radio" name="q32" value="Hayır"><span>Hayır</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <div class="field" data-kind="para" data-title="Başvurunuza eklemek istedikleriniz">
-                <label for="q33">Başvurunuza eklemek istedikleriniz</label>
-                <textarea id="q33" name="q33" rows="4"></textarea>
-                <span class="field__error"></span>
-              </div>
-            </fieldset>
-            <fieldset class="form__section">
-              <legend class="form__section-title">6. Başvuru sahibi</legend>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Başvuruyu yapan kişi" data-required>
-                <legend>Başvuruyu yapan kişi <span class="req" aria-hidden="true">*</span></legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q34" value="Adayın kendisi (18 yaş ve üzeri)"><span>Adayın kendisi (18 yaş ve üzeri)</span></label>
-                  <label class="choice"><input type="radio" name="q34" value="Veli / yasal temsilci"><span>Veli / yasal temsilci</span></label>
-                  <label class="choice"><input type="radio" name="q34" value="Diğer"><span>Diğer</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <div class="field" data-kind="minor" data-title="Veli / yasal temsilcinin adı soyadı" data-minor>
-                <label for="q35">Veli / yasal temsilcinin adı soyadı</label>
-                <span class="field__help">18 yaşından küçük adaylar için doldurulmalıdır.</span>
-                <input type="text" id="q35" name="q35">
-                <span class="field__error"></span>
-              </div>
-              <div class="field" data-kind="minortel" data-title="Veli / yasal temsilcinin telefon numarası" data-minor>
-                <label for="q36">Veli / yasal temsilcinin telefon numarası</label>
-                <input type="tel" id="q36" name="q36">
-                <span class="field__error"></span>
-              </div>
-            </fieldset>
-            <fieldset class="form__section">
-              <legend class="form__section-title">7. Başvuru beyanı</legend>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Bilgilerinizi doğru verdiğinizi ve başvuru koşullarını okuduğunuzu onaylıyor musunuz?" data-required>
-                <legend>Bilgilerinizi doğru verdiğinizi ve başvuru koşullarını okuduğunuzu onaylıyor musunuz? <span class="req" aria-hidden="true">*</span></legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q37" value="Evet, onaylıyorum"><span>Evet, onaylıyorum</span></label>
-                  <label class="choice"><input type="radio" name="q37" value="Hayır"><span>Hayır</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-              <fieldset class="field field--choices" data-kind="radio" data-title="Aday profilimin, hukuken gerekli olduğu durumlarda, ayrı açıklanacak şartlarla ilgili yapım şirketleriyle paylaşılmasına onay veriyorum.">
-                <legend>Aday profilimin, hukuken gerekli olduğu durumlarda, ayrı açıklanacak şartlarla ilgili yapım şirketleriyle paylaşılmasına onay veriyorum.</legend>
-                <div class="choices">
-                  <label class="choice"><input type="radio" name="q38" value="Evet, izin veriyorum"><span>Evet, izin veriyorum</span></label>
-                  <label class="choice"><input type="radio" name="q38" value="Hayır, izin vermiyorum"><span>Hayır, izin vermiyorum</span></label>
-                </div>
-                <span class="field__error"></span>
-              </fieldset>
-            </fieldset>
-            <div class="form__nav">
-              <button type="button" class="btn btn--outline" id="stepPrev">← Geri</button>
-              <button type="button" class="btn btn--dark" id="stepNext">İleri →</button>
-              <button type="submit" class="btn btn--dark" id="castingSubmit">Başvuruyu gönder</button>
-            </div>
-            <p class="form__status" id="castingStatus" role="status" aria-live="polite"></p>
+            <div class="progress__bar"><span class="progress__fill" id="castingProgress"></span></div>
+            <ol class="dots" id="castingDots"></ol>
+          </div>
+
+          <p class="status" id="castingStatus" role="status" aria-live="polite" hidden></p>
+
+          <div id="castingSteps"></div>
+
+          <div class="cf__nav">
+            <button type="button" class="btn btn--outline" id="castingPrev">← Geri</button>
+            <button type="button" class="btn btn--dark" id="castingNext">İleri →</button>
+            <button type="submit" class="btn btn--light" id="castingSubmit">
+              <span class="spinner" id="castingSpinner" hidden></span>
+              <span id="castingSubmitLabel">Gönder</span>
+            </button>
+          </div>
         </form>
       </div>
     </section>
@@ -785,6 +490,7 @@
     <span class="lightbox__count" id="lightboxCount"></span>
   </dialog>
 
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

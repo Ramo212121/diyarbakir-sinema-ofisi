@@ -3,6 +3,11 @@
    Vanilla JS
    ========================================================== */
 
+/* ---------- Airtable bağlantısı ---------- */
+// Bilgiler config.js'ten gelir; o dosya git'e girmez (.gitignore).
+// Örnek için config.example.js'e bakın.
+const { AIRTABLE_API_KEY = "", AIRTABLE_BASE_ID = "", AIRTABLE_TABLE_NAME = "" } = window.DSO_CONFIG || {};
+
 document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------- Header: kaydırınca arka plan ---------- */
@@ -340,154 +345,585 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-  /* ---------- Casting başvuru formu → Google Forms ---------- */
-  // Yanıtlar Google Forms'a gönderilir; ziyaretçi siteden ayrılmaz.
-  const GOOGLE_FORM_URL =
-    "https://docs.google.com/forms/d/e/1FAIpQLSe5uuttPl6lmiExv28EI3fxtjsFVkEsHq7_xqwoJPau3DcV4Q/formResponse";
-  // Soru başlığı → Google'daki entry numarası. Apps Script'teki logEntryIds() çıktısıyla doldurulur.
-  const ENTRY_IDS = {};
-  // Formda 7 bölüm (sayfa sonu) var; Google çok sayfalı formlarda gezilen sayfaları da ister.
-  const PAGE_HISTORY = "0,1,2,3,4,5,6,7";
+  /* ---------- Casting başvuru formu → Airtable ---------- */
+  // Form, aşağıdaki SECTIONS listesinden oluşturulur; her alanın "name"i Airtable'daki sütun adıdır.
+  // Kendi süslü parantezi içinde: değişken adları sayfanın geri kalanıyla çakışmasın.
+  {
+    // Airtable'ın uploadAttachment ucu dosya başına en fazla 5 MB kabul eder
+    const MAX_FILE_BYTES = 5 * 1024 * 1024;
 
-  const castingForm = document.getElementById("castingForm");
-  const castingStatus = document.getElementById("castingStatus");
-  const castingSubmit = document.getElementById("castingSubmit");
-  const castingFields = [...castingForm.querySelectorAll("[data-title]")];
-  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const ILLER = ["Diyarbakır", "Mardin", "Batman", "Siirt", "Şanlıurfa", "Gaziantep", "Malatya", "Bingöl", "Elazığ", "Diğer"];
+    // Profesyonel çekim istemeyen adaya fotoğraf/video bağlantıları sorulmaz
+    const PRO_CEKIM = ["Profesyonel Çekim İstiyorum", "Evet"];
+    const KATILIM = ["Evet", "Hayır"];
+    const EMAIL_DOMAINS = ["gmail.com", "hotmail.com", "outlook.com", "icloud.com", "yahoo.com", "yandex.com"];
 
-  const valuesOf = (field) => {
-    if (field.dataset.kind === "radio" || field.dataset.kind === "check") {
-      return [...field.querySelectorAll("input:checked")].map((i) => i.value);
-    }
-    const v = field.querySelector("input, select, textarea").value.trim();
-    return v ? [v] : [];
-  };
+    // "name" Airtable'daki sütun adıdır: birebir aynı olmalı.
+    // minor: true → 18 yaş altı seçilirse zorunlu
+    const SECTIONS = [
+      {
+        title: "1. Kimlik ve İletişim Bilgileri",
+        note: "Size ulaşabilmemiz için temel bilgileriniz.",
+        fields: [
+          { name: "Adınız ve soyadınız", type: "text", required: true, autocomplete: "name" },
+          { name: "Doğum tarihiniz", type: "date", required: true },
+          { name: "18 yaşından küçük müsünüz?", type: "radio", required: true, options: ["Evet", "Hayır"] },
+          { name: "Cinsiyet", type: "radio", required: true, options: ["Kadın", "Erkek"] },
+          { name: "Yaşadığınız il", type: "select", required: true, options: ILLER },
+          { name: "Yaşadığınız ilçe", type: "text", required: true },
+          { name: "Telefon numaranız", type: "tel", required: true, autocomplete: "tel", full: true, help: "Örnek: 0532 123 45 67", placeholder: "05XX XXX XX XX" },
+          { name: "E-posta adresiniz", type: "email", required: true, full: true },
+          { name: "Instagram profil bağlantınız (isteğe bağlı)", type: "text", placeholder: "instagram.com/kullaniciadi", full: true },
+          { name: "Hakkınızda (kendinizi üç cümle ile ifade ediniz.)", type: "textarea", required: true, full: true },
+          { name: "Portre fotografınızı ekleyiniz.", type: "file", required: true, accept: "image/*", hint: "JPG, PNG · en fazla 5 MB", full: true },
+        ],
+      },
+      {
+        title: "2. Başvuru Türü ve Fiziksel Bilgiler",
+        note: "Rol eşleştirmesi için kullanılır.",
+        fields: [
+          { name: "Hangi alanlarda değerlendirilmek istersiniz?", type: "check", required: true, full: true, help: "Birden fazla seçenek seçebilirsiniz.",
+            options: ["Oyuncu", "Yardımcı oyuncu", "Figüran", "Reklam oyuncusu", "Çocuk oyuncu (veli/yasal temsilci üzerinden)", "Diğer"] },
+          { name: "Boyunuz (cm)", type: "text", required: true, inputmode: "numeric", help: "Örnek: 174", numeric: [50, 250] },
+          { name: "Kilonuz (kg)", type: "text", required: true, help: "Örnek: 68", inputmode: "numeric", numeric: [10, 250] },
+          { name: "Göz renginiz", type: "select", required: true, options: ["Kahverengi", "Ela", "Mavi", "Yeşil", "Siyah", "Diğer", "Belirtmek istemiyorum"] },
+          { name: "Saç renginiz", type: "select", required: true, options: ["Siyah", "Kahverengi", "Kumral", "Sarı", "Kızıl", "Beyaz / gri", "Diğer", "Belirtmek istemiyorum"] },
+          { name: "Kıyafet bedeniniz", type: "text", required: true, help: "Örnek: M veya 38" },
+          { name: "Ayakkabı numaranız", type: "text", required: true, help: "Örnek: 42", inputmode: "numeric" },
+        ],
+      },
+      {
+        title: "3. Deneyim, Diller ve Yetenekler",
+        note: "Deneyiminiz yoksa sorun değil, deneyimsiz adaylar da başvurabilir.",
+        fields: [
+          { name: "Daha önce oyunculuk veya figüranlık yaptınız mı?", type: "radio", required: true, options: ["Evet", "Hayır"], full: true },
+          { name: "Yer aldığınız projeler ve roller (varsa)", type: "textarea", required: true, help: "Yoksa “Yok” yazın.", full: true },
+          { name: "Oyunculuk eğitimi aldınız mı?", type: "radio", options: ["Evet", "Hayır"], full: true },
+          { name: "Oyunculuk eğitimleriniz (varsa)", type: "textarea", required: true, help: "Yoksa “Yok” yazın.", full: true },
+          { name: "Konuşabildiğiniz diller", type: "check", required: true, full: true,
+            options: ["Türkçe", "Kürtçe (Kurmancî)", "Zazaca (Kırmanckî)", "Arapça", "İngilizce", "Diğer"] },
+          { name: "Özel becerileriniz (varsa)", type: "check", full: true,
+            options: ["Araç kullanma", "At binme", "Yüzme", "Dans", "Müzik aleti çalma", "Şarkı söyleme", "Spor", "Dövüş sanatları", "Diğer", "Belirtmek istemiyorum"] },
+          { name: "Özel becerilerinizle ilgili detaylar (isteğe bağlı)", type: "textarea", full: true },
+        ],
+      },
+      {
+        title: "4. Fotoğraf, Portföy ve Video",
+        note: "Lütfen erişimi kontrol ettiğiniz, yalnızca başvurunun değerlendirilmesine uygun fotoğraf veya video bağlantıları paylaşın.",
+        fields: [
+          { name: "Profesyonel Çekim İstiyorum", type: "radio", required: true, options: ["Evet", "Hayır"], full: true },
+          { name: "Güncel yüz fotoğrafı bağlantısı (drive linki)", type: "url", showIf: PRO_CEKIM, required: true, help: "Bağlantının paylaşım izinlerini kontrol edin.", placeholder: "https://drive.google.com/...", full: true },
+          { name: "Güncel boy fotoğrafı bağlantısı (drive linki)", type: "url", showIf: PRO_CEKIM, required: true, placeholder: "https://drive.google.com/...", full: true },
+          { name: "Tanıtım videosu bağlantısı (Youtube , Drive veya Vimeo)", type: "url", showIf: PRO_CEKIM, placeholder: "https://", full: true },
+          { name: "Oyunculuk portföyü / showreel bağlantısı", type: "url", showIf: PRO_CEKIM, placeholder: "https://", full: true },
+        ],
+      },
+      {
+        title: "5. Çekimlere Katılım",
+        note: "Uygunluk durumunuz.",
+        fields: [
+          { name: "Şehir dışındaki çekimlere katılabilir misiniz?", type: "radio", required: true, options: KATILIM, full: true },
+          { name: "Kısa süreli çekimlere katılabilir misiniz?", type: "radio", required: true, options: KATILIM, full: true },
+          { name: "Uzun süreli projelerde yer alabilir misiniz?", type: "radio", required: true, options: KATILIM, full: true },
+          { name: "Bir oyunculuk veya casting ajansına kayıtlı mısınız?", type: "radio", required: true, options: ["Evet", "Hayır"], full: true },
+          { name: "Başvurunuza eklemek istedikleriniz", type: "textarea", full: true },
+        ],
+      },
+      {
+        title: "6. Çocuk Oyuncu Başvuruları (yalnızca 18 yaş altı için)",
+        note: "Yalnızca 18 yaşından küçük adayların velisi veya yasal temsilcisi doldurmalıdır.",
+        minorStep: true,
+        fields: [
+          { name: "Veli / yasal temsilcinin adı soyadı", type: "text", minor: true },
+          { name: "Veli / yasal temsilcinin telefon numarası", type: "tel", minor: true, help: "Örnek: 0532 123 45 67", placeholder: "05XX XXX XX XX" },
+          { name: "Başvuruyu yapan kişi", type: "radio", minor: true, full: true,
+            options: ["Adayın kendisi (18 yaş ve üzeri)", "Veli / yasal temsilci", "Diğer"] },
+        ],
+      },
+      {
+        title: "7. KVKK Bilgilendirmesi ve Başvuru Beyanı",
+        note: "Kişisel verileriniz yalnızca casting değerlendirmesi amacıyla işlenir. Profilinizin yapım şirketleriyle paylaşılmasına izin vermemeniz başvurunuzu engellemez.",
+        fields: [
+          { name: "Bilgilerinizi doğru verdiğinizi ve başvuru koşullarını okuduğunuzu onaylıyor musunuz?", type: "radio", required: true, mustBe: "Evet, onaylıyorum",
+            options: ["Evet, onaylıyorum", "Hayır"], full: true },
+          { name: "Aday profilimin, hukuken gerekli olduğu durumlarda, ayrı açıklanacak şartlarla ilgili yapım şirketleriyle paylaşılmasına onay veriyorum.", type: "radio",
+            options: ["Evet, izin veriyorum", "Hayır, izin vermiyorum"], full: true },
+        ],
+      },
+      {
+        title: "8. Özet ve Gönder",
+        note: "Bilgilerinizi kontrol edin. Değiştirmek istediğiniz bölümde “Düzenle”ye basın.",
+        summary: true,
+        fields: [],
+      },
+    ];
 
-  const isMinor = () =>
-    castingForm.querySelector('[data-title="18 yaşından küçük müsünüz?"] input:checked')?.value === "Evet";
+    const form = document.getElementById("castingForm");
+    const stepsEl = document.getElementById("castingSteps");
+    const dotsEl = document.getElementById("castingDots");
+    const statusEl = document.getElementById("castingStatus");
+    const prevBtn = document.getElementById("castingPrev");
+    const nextBtn = document.getElementById("castingNext");
+    const submitBtn = document.getElementById("castingSubmit");
+    const submitLabel = document.getElementById("castingSubmitLabel");
+    const spinner = document.getElementById("castingSpinner");
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  const validateCasting = (field) => {
-    const values = valuesOf(field);
-    let error = "";
-    const required = field.hasAttribute("data-required") || field.querySelector("[required]") ||
-      (field.hasAttribute("data-minor") && isMinor());
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const formatSize = (b) => (b < 1024 * 1024 ? `${Math.round(b / 1024)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`);
 
-    if (required && !values.length) error = "Bu alan zorunludur.";
-    else if (field.dataset.kind === "email" && values.length && !emailRe.test(values[0])) error = "Geçerli bir e-posta adresi girin.";
+    /* ---------- Formu oluştur ---------- */
+    const fields = [];
+    let uid = 0;
 
-    field.classList.toggle("has-error", !!error);
-    field.querySelector(".field__error").textContent = error;
-    return !error;
-  };
+    const controlHTML = (f, id) => {
+      const attrs = [
+        f.placeholder && `placeholder="${esc(f.placeholder)}"`,
+        f.autocomplete && `autocomplete="${f.autocomplete}"`,
+        f.inputmode && `inputmode="${f.inputmode}"`,
+      ].filter(Boolean).join(" ");
 
-  castingFields.forEach((field) => {
-    field.addEventListener("change", () => { if (field.classList.contains("has-error")) validateCasting(field); });
-    field.addEventListener("input", () => { if (field.classList.contains("has-error")) validateCasting(field); });
-  });
+      switch (f.type) {
+        case "radio":
+        case "check":
+          return `<div class="choices">${f.options.map((o) =>
+            `<label class="choice"><input type="${f.type === "radio" ? "radio" : "checkbox"}" name="${id}" value="${esc(o)}"><span>${esc(o)}</span></label>`
+          ).join("")}</div>`;
+        case "select":
+          return `<select id="${id}"><option value="">Seçiniz</option>${f.options.map((o) => `<option>${esc(o)}</option>`).join("")}</select>`;
+        case "textarea":
+          return `<textarea id="${id}" rows="4" ${attrs}></textarea>`;
+        case "file":
+          return `<div class="drop">
+              <input type="file" id="${id}" accept="${f.accept}">
+              <span class="drop__icon">+</span>
+              <span class="drop__text"><strong>Dosya seçin veya sürükleyin</strong><small>${esc(f.hint)}</small></span>
+              <button type="button" class="drop__clear" hidden>Kaldır</button>
+            </div>`;
+        case "email":
+          // kullanıcı adı + @ + listeden alan adı; listede yoksa "Diğer" ile elle yazılır
+          return `<div class="email">
+              <input type="text" id="${id}" class="email__local" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="kullaniciadi">
+              <span class="email__at">@</span>
+              <select class="email__domain" aria-label="E-posta alan adı">${EMAIL_DOMAINS.map((d) => `<option>${d}</option>`).join("")}<option value="">Diğer…</option></select>
+              <input type="text" class="email__other" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="alanadi.com" aria-label="E-posta alan adı" hidden>
+            </div>`;
+        case "tel":
+          return `<input type="tel" id="${id}" maxlength="14" ${attrs}>`;
+        default:
+          return `<input type="${f.type}" id="${id}" ${attrs}>`;
+      }
+    };
 
-  // Form adım adım: her seferinde bir bölüm görünür
-  const steps = [...castingForm.querySelectorAll(".form__section")];
-  const stepPrev = document.getElementById("stepPrev");
-  const stepNext = document.getElementById("stepNext");
-  let step = 0;
+    SECTIONS.forEach((section, s) => {
+      const step = document.createElement("fieldset");
+      step.className = "step";
+      step.hidden = true;
+      step.innerHTML = `<legend class="step__title">${esc(section.title)}</legend><p class="step__note">${esc(section.note)}</p>`;
 
-  const showStep = (index, scroll = true) => {
-    step = index;
-    steps.forEach((s, i) => s.classList.toggle("is-active", i === step));
-    const last = step === steps.length - 1;
-    stepPrev.hidden = step === 0;
-    stepNext.hidden = last;
-    castingSubmit.hidden = !last;
-    document.getElementById("stepsCurrent").textContent = step + 1;
-    document.getElementById("stepsTotal").textContent = steps.length;
-    document.getElementById("stepsTitle").textContent =
-      steps[step].querySelector(".form__section-title").textContent.replace(/^\d+\.\s*/, "");
-    document.getElementById("stepsFill").style.width = `${((step + 1) / steps.length) * 100}%`;
-    castingStatus.textContent = "";
-    castingStatus.className = "form__status";
-    if (scroll) castingForm.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const stepIsValid = () => {
-    const invalid = [...steps[step].querySelectorAll("[data-title]")].filter((f) => !validateCasting(f));
-    if (invalid.length) invalid[0].scrollIntoView({ behavior: "smooth", block: "center" });
-    return !invalid.length;
-  };
-
-  stepNext.addEventListener("click", () => { if (stepIsValid()) showStep(step + 1); });
-  stepPrev.addEventListener("click", () => showStep(step - 1));
-  // son adımdan önce Enter'a basılırsa form gönderilmesin, bir sonraki adıma geçilsin
-  castingForm.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && e.target.tagName === "INPUT" && step < steps.length - 1) {
-      e.preventDefault();
-      stepNext.click();
-    }
-  });
-  showStep(0, false);
-
-  // 18 yaş altı seçilince veli alanlarını öne çıkar
-  const minorFields = castingForm.querySelectorAll("[data-minor]");
-  castingForm.addEventListener("change", () => {
-    minorFields.forEach((f) => f.classList.toggle("is-required", isMinor()));
-  });
-
-  castingForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    castingStatus.textContent = "";
-    castingStatus.className = "form__status";
-
-    const invalid = castingFields.filter((f) => !validateCasting(f));
-    if (invalid.length) {
-      showStep(steps.indexOf(invalid[0].closest(".form__section")), false);
-      invalid[0].scrollIntoView({ behavior: "smooth", block: "center" });
-      castingStatus.textContent = "Lütfen işaretli alanları kontrol edin.";
-      castingStatus.classList.add("is-error");
-      return;
-    }
-
-    if (!Object.keys(ENTRY_IDS).length) {
-      castingStatus.textContent = "Form şu an bakımda, lütfen daha sonra tekrar deneyin.";
-      castingStatus.classList.add("is-error");
-      console.warn("ENTRY_IDS boş: Google Form soru numaraları henüz eklenmedi.");
-      return;
-    }
-
-    const body = new URLSearchParams();
-    castingFields.forEach((field) => {
-      const id = ENTRY_IDS[field.dataset.title];
-      if (!id) return;
-      const values = valuesOf(field);
-      if (field.dataset.kind === "date" && values.length) {
-        const [y, m, d] = values[0].split("-");
-        body.append(`entry.${id}_year`, y);
-        body.append(`entry.${id}_month`, String(+m));
-        body.append(`entry.${id}_day`, String(+d));
+      if (section.summary) {
+        step.insertAdjacentHTML("beforeend", `<div class="summary" id="castingSummary"></div>`);
       } else {
-        values.forEach((v) => body.append(`entry.${id}`, v));
+        const grid = document.createElement("div");
+        grid.className = "fields";
+        section.fields.forEach((f) => {
+          const id = `f${++uid}`;
+          const group = f.type === "radio" || f.type === "check";
+          const star = f.required ? ` <span class="req" aria-hidden="true">*</span>` : "";
+          const wrap = document.createElement(group ? "fieldset" : "div");
+          wrap.className = `field${f.full || group || f.type === "textarea" ? " field--full" : ""}`;
+          wrap.innerHTML =
+            (group ? `<legend>${esc(f.name)}${star}</legend>` : `<label for="${id}">${esc(f.name)}${star}</label>`) +
+            controlHTML(f, id) +
+            (f.help ? `<span class="field__help">${esc(f.help)}</span>` : "") +
+            `<span class="field__error"></span>`;
+          grid.appendChild(wrap);
+          fields.push({ ...f, el: wrap, step: s });
+        });
+        step.appendChild(grid);
+      }
+      stepsEl.appendChild(step);
+      dotsEl.insertAdjacentHTML("beforeend", `<li><button type="button" class="dot" data-step="${s}" aria-label="${esc(section.title)}">${s + 1}</button></li>`);
+    });
+
+    const steps = [...stepsEl.children];
+    const dots = [...dotsEl.querySelectorAll(".dot")];
+    const LAST = steps.length - 1;
+    const MINOR_STEP = SECTIONS.findIndex((s) => s.minorStep);
+
+    /* ---------- Değer okuma ve doğrulama ---------- */
+    const fileOf = (f) => f.el.querySelector('input[type="file"]').files[0];
+
+    const valuesOf = (f) => {
+      if (f.type === "radio" || f.type === "check") {
+        return [...f.el.querySelectorAll("input:checked")].map((i) => i.value);
+      }
+      if (f.type === "file") {
+        const file = fileOf(f);
+        return file ? [file.name] : [];
+      }
+      if (f.type === "email") {
+        const local = f.el.querySelector(".email__local").value.trim();
+        const select = f.el.querySelector(".email__domain");
+        const domain = (select.value || f.el.querySelector(".email__other").value).trim().replace(/^@/, "");
+        return local ? [`${local}@${domain}`] : [];
+      }
+      const v = f.el.querySelector("input, select, textarea").value.trim();
+      return v ? [v] : [];
+    };
+
+    const field = (name) => fields.find((f) => f.name === name);
+    const isMinor = () => valuesOf(field("18 yaşından küçük müsünüz?"))[0] === "Evet";
+    const isRequired = (f) => f.required || (f.minor && isMinor());
+    // showIf: [soru, cevap] → alan yalnızca o soruya bu cevap verilince görünür
+    const isHidden = (f) => !!f.showIf && valuesOf(field(f.showIf[0]))[0] !== f.showIf[1];
+    const updateConditional = () => fields.forEach((f) => {
+      f.el.hidden = isHidden(f);
+      if (f.el.hidden) {
+        f.el.classList.remove("has-error");
+        f.el.querySelector(".field__error").textContent = "";
       }
     });
-    body.append("pageHistory", PAGE_HISTORY);
 
-    castingSubmit.disabled = true;
-    castingSubmit.textContent = "Gönderiliyor…";
-    try {
-      // Google başka siteden gelen isteğe cevabını okutmaz (no-cors); hata yoksa gönderilmiş sayılır.
-      await fetch(GOOGLE_FORM_URL, { method: "POST", mode: "no-cors", body });
-      castingForm.reset();
-      showStep(0, false);
-      castingStatus.textContent =
-        "Başvurunuz alınmıştır. İlginiz için teşekkür ederiz. Uygun projelerde değerlendirme yapılması halinde sizinle iletişime geçilebilir. Başvurunuz herhangi bir rol veya iş garantisi oluşturmaz.";
-      castingStatus.classList.add("is-success");
-    } catch {
-      castingStatus.textContent = "Bağlantı hatası oluştu, lütfen tekrar deneyin.";
-      castingStatus.classList.add("is-error");
-    } finally {
-      castingSubmit.disabled = false;
-      castingSubmit.textContent = "Başvuruyu gönder";
-    }
-  });
+    const validate = (f) => {
+      const values = valuesOf(f);
+      const v = values[0];
+      let error = "";
+
+      if (isRequired(f) && !values.length) error = "Bu alan zorunludur.";
+      else if (!values.length) error = "";
+      else if (f.type === "email" && !emailRe.test(v)) error = "Geçerli bir e-posta adresi girin.";
+      else if (f.type === "tel" && !/^0\d{10}$/.test(v.replace(/\D/g, ""))) error = "Numarayı başında 0 ile 11 hane yazın (örn. 0532 123 45 67).";
+      else if (f.type === "url" && !/^(https?:\/\/)?[^\s.]+\.\S+$/i.test(v)) error = "Geçerli bir bağlantı girin.";
+      else if (f.type === "date" && new Date(v) > new Date()) error = "Doğum tarihi bugünden sonra olamaz.";
+      else if (f.numeric && !(Number(v.replace(",", ".")) >= f.numeric[0] && Number(v.replace(",", ".")) <= f.numeric[1])) error = "Lütfen geçerli bir sayı girin.";
+      else if (f.mustBe && v !== f.mustBe) error = "Başvurunun alınabilmesi için onay gereklidir.";
+      else if (f.type === "file") {
+        const file = fileOf(f);
+        const okType = f.accept.split(",").some((a) => (a.endsWith("/*") ? file.type.startsWith(a.slice(0, -1)) : file.type === a));
+        if (!okType) error = "Bu dosya türü desteklenmiyor.";
+        else if (file.size > MAX_FILE_BYTES) error = `Dosya en fazla 5 MB olabilir (seçilen: ${formatSize(file.size)}).`;
+      }
+
+      f.el.classList.toggle("has-error", !!error);
+      f.el.querySelector(".field__error").textContent = error;
+      return !error;
+    };
+
+    /* ---------- Telefon ve e-posta alanları ---------- */
+    // 05321234567 → "0532 123 45 67"; imleç yazılan rakamın yanında kalır
+    const formatPhone = (digits) =>
+      [digits.slice(0, 4), digits.slice(4, 7), digits.slice(7, 9), digits.slice(9, 11)].filter(Boolean).join(" ");
+
+    fields.filter((f) => f.type === "tel").forEach((f) => {
+      const input = f.el.querySelector("input");
+      input.addEventListener("input", () => {
+        const before = input.value.slice(0, input.selectionStart).replace(/\D/g, "").length;
+        input.value = formatPhone(input.value.replace(/\D/g, "").slice(0, 11));
+        let pos = 0;
+        for (let n = 0; pos < input.value.length && n < before; pos++) if (/\d/.test(input.value[pos])) n++;
+        input.setSelectionRange(pos, pos);
+      });
+    });
+
+    const refreshEmail = (f) => {
+      const other = f.el.querySelector(".email__other");
+      other.hidden = f.el.querySelector(".email__domain").value !== "";
+    };
+
+    fields.filter((f) => f.type === "email").forEach((f) => {
+      const local = f.el.querySelector(".email__local");
+      const select = f.el.querySelector(".email__domain");
+      const other = f.el.querySelector(".email__other");
+      // "@" yazılırsa ya da tam adres yapıştırılırsa alan adı kısmı listeye taşınır
+      local.addEventListener("input", () => {
+        if (!local.value.includes("@")) return;
+        const [name, domain = ""] = local.value.split("@");
+        local.value = name;
+        if (!domain) { select.focus(); return; }
+        const known = EMAIL_DOMAINS.find((d) => d === domain.toLowerCase());
+        select.value = known || "";
+        if (!known) other.value = domain;
+        refreshEmail(f);
+      });
+      select.addEventListener("change", () => {
+        refreshEmail(f);
+        if (!other.hidden) other.focus();
+      });
+    });
+
+    fields.forEach((f) => {
+      const recheck = () => { if (f.el.classList.contains("has-error")) validate(f); };
+      f.el.addEventListener("input", recheck);
+      f.el.addEventListener("change", recheck);
+    });
+
+    /* ---------- Dosya alanları ---------- */
+    const refreshFile = (f) => {
+      const file = fileOf(f);
+      const icon = f.el.querySelector(".drop__icon");
+      const title = f.el.querySelector(".drop__text strong");
+      const small = f.el.querySelector(".drop__text small");
+      const clear = f.el.querySelector(".drop__clear");
+      if (icon.dataset.url) URL.revokeObjectURL(icon.dataset.url);
+      delete icon.dataset.url;
+
+      if (!file) {
+        icon.textContent = "+";
+        title.textContent = "Dosya seçin veya sürükleyin";
+        small.textContent = f.hint;
+        clear.hidden = true;
+        return;
+      }
+      title.textContent = file.name;
+      small.textContent = formatSize(file.size);
+      clear.hidden = false;
+      if (file.type.startsWith("image/")) {
+        icon.dataset.url = URL.createObjectURL(file);
+        icon.innerHTML = `<img src="${icon.dataset.url}" alt="">`;
+      } else {
+        icon.textContent = file.type.startsWith("video/") ? "▶" : "✓";
+      }
+    };
+
+    fields.filter((f) => f.type === "file").forEach((f) => {
+      const input = f.el.querySelector('input[type="file"]');
+      const drop = f.el.querySelector(".drop");
+      input.addEventListener("change", () => { refreshFile(f); validate(f); });
+      f.el.querySelector(".drop__clear").addEventListener("click", () => {
+        input.value = "";
+        refreshFile(f);
+        validate(f);
+      });
+      ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.add("is-over")));
+      ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.remove("is-over")));
+    });
+
+    /* ---------- Adımlar ---------- */
+    let current = 0;
+    let reached = 0;
+
+    // 18 yaş altı değilse 6. bölüm atlanır
+    const isSkipped = (i) => i === MINOR_STEP && !isMinor();
+    const nextIndex = (i, dir) => {
+      let n = i + dir;
+      while (isSkipped(n)) n += dir;
+      return n;
+    };
+
+    const setStatus = (text, type) => {
+      statusEl.textContent = text;
+      statusEl.className = `status${type ? ` is-${type}` : ""}`;
+      statusEl.hidden = !text;
+    };
+
+    const showStep = (i, { scroll = true, keepStatus = false } = {}) => {
+      current = i;
+      reached = Math.max(reached, i);
+      steps.forEach((s, n) => {
+        s.hidden = n !== i;
+        s.classList.toggle("is-entering", n === i);
+      });
+      dots.forEach((d, n) => {
+        d.classList.toggle("is-current", n === i);
+        d.classList.toggle("is-done", n < i || (n <= reached && n !== i));
+        d.classList.toggle("is-skipped", isSkipped(n));
+      });
+
+      prevBtn.hidden = i === 0;
+      nextBtn.hidden = i === LAST;
+      submitBtn.hidden = i !== LAST;
+      document.getElementById("castingStepNow").textContent = i + 1;
+      document.getElementById("castingStepTotal").textContent = steps.length;
+      document.getElementById("castingStepName").textContent = SECTIONS[i].title.replace(/^\d+\.\s*/, "");
+      document.getElementById("castingProgress").style.width = `${((i + 1) / steps.length) * 100}%`;
+
+      if (i === LAST) renderSummary();
+      if (!keepStatus) setStatus("");
+      if (scroll) form.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const stepIsValid = (i) => {
+      const invalid = fields.filter((f) => f.step === i && !isHidden(f)).filter((f) => !validate(f));
+      if (invalid.length) invalid[0].el.scrollIntoView({ behavior: "smooth", block: "center" });
+      return !invalid.length;
+    };
+
+    nextBtn.addEventListener("click", () => { if (stepIsValid(current)) showStep(nextIndex(current, 1)); });
+    prevBtn.addEventListener("click", () => showStep(nextIndex(current, -1)));
+    dots.forEach((d, n) => d.addEventListener("click", () => {
+      if (n <= reached && !isSkipped(n) && n !== current) showStep(n);
+    }));
+
+    // son adımdan önce Enter formu göndermesin, bir sonraki adıma geçsin
+    form.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && e.target.tagName === "INPUT" && current < LAST) {
+        e.preventDefault();
+        nextBtn.click();
+      }
+    });
+
+    // cevaplar değişince koşullu alanları ve adım çubuğunu güncelle
+    form.addEventListener("change", () => {
+      updateConditional();
+      dots[MINOR_STEP].classList.toggle("is-skipped", isSkipped(MINOR_STEP));
+    });
+    updateConditional();
+
+    /* ---------- Özet ---------- */
+    const renderSummary = () => {
+      document.getElementById("castingSummary").innerHTML = SECTIONS.slice(0, LAST).map((section, s) => {
+        if (isSkipped(s)) return "";
+        const rows = fields
+          .filter((f) => f.step === s && !isHidden(f))
+          .map((f) => {
+            const values = valuesOf(f);
+            if (!values.length) return "";
+            if (f.type === "file") {
+              const url = f.el.querySelector(".drop__icon").dataset.url;
+              return `<dt>${esc(f.name)}</dt><dd>${url ? `<img class="summary__photo" src="${url}" alt="">` : ""}${esc(values[0])}</dd>`;
+            }
+            const shown = f.type === "date" ? values[0].split("-").reverse().join(".") : values.join(", ");
+            return `<dt>${esc(f.name)}</dt><dd>${esc(shown)}</dd>`;
+          })
+          .join("");
+        return `<div class="summary__group">
+            <div class="summary__head"><h3>${esc(section.title)}</h3><button type="button" class="summary__edit" data-step="${s}">Düzenle</button></div>
+            ${rows ? `<dl>${rows}</dl>` : `<p class="summary__empty">Bu bölümde bilgi girilmedi.</p>`}
+          </div>`;
+      }).join("");
+    };
+
+    document.getElementById("castingSummary").addEventListener("click", (e) => {
+      const btn = e.target.closest(".summary__edit");
+      if (btn) showStep(Number(btn.dataset.step));
+    });
+
+    /* ---------- Airtable'a gönderim ---------- */
+    const toBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+
+    const airtableError = async (res, fallback) => {
+      const data = await res.json().catch(() => ({}));
+      return new Error(data.error?.message || data.error?.type || `${fallback} (${res.status})`);
+    };
+
+    const createRecord = async (data) => {
+      const res = await fetch(
+        `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}`, "Content-Type": "application/json" },
+          // typecast: tarih ve seçenek alanlarını Airtable kendisi tanısın
+          body: JSON.stringify({ records: [{ fields: data }], typecast: true }),
+        }
+      );
+      if (!res.ok) throw await airtableError(res, "Kayıt oluşturulamadı");
+      return (await res.json()).records[0].id;
+    };
+
+    const uploadFile = async (recordId, column, file) => {
+      const res = await fetch(
+        `https://content.airtable.com/v0/${AIRTABLE_BASE_ID}/${recordId}/${encodeURIComponent(column)}/uploadAttachment`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ contentType: file.type, file: await toBase64(file), filename: file.name }),
+        }
+      );
+      if (!res.ok) throw await airtableError(res, "Dosya yüklenemedi");
+    };
+
+    const setBusy = (busy, label = "Gönderiliyor...") => {
+      form.classList.toggle("is-loading", busy);
+      form.setAttribute("aria-busy", String(busy));
+      submitBtn.disabled = busy;
+      prevBtn.disabled = busy;
+      spinner.hidden = !busy;
+      submitLabel.textContent = busy ? label : "Gönder";
+    };
+
+    const resetForm = () => {
+      form.reset();
+      fields.filter((f) => f.type === "file").forEach(refreshFile);
+      fields.filter((f) => f.type === "email").forEach(refreshEmail);
+      fields.forEach((f) => {
+        f.el.classList.remove("has-error");
+        f.el.querySelector(".field__error").textContent = "";
+      });
+      reached = 0;
+      updateConditional();
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (current !== LAST) return;
+      setStatus("");
+
+      const invalid = fields.filter((f) => !isSkipped(f.step) && !isHidden(f) && !validate(f));
+      if (invalid.length) {
+        showStep(invalid[0].step, { scroll: false });
+        invalid[0].el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setStatus("Lütfen işaretli alanları kontrol edin.", "error");
+        return;
+      }
+
+      if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_TABLE_NAME || AIRTABLE_API_KEY.startsWith("BURAYA")) {
+        setStatus("Form şu an bakımda, lütfen daha sonra tekrar deneyin.", "error");
+        console.warn("Airtable bilgileri girilmedi: AIRTABLE_API_KEY, AIRTABLE_BASE_ID ve AIRTABLE_TABLE_NAME doldurulmalı.");
+        return;
+      }
+
+      // Çoklu seçim (checkbox) dizi, diğerleri metin olarak gider; boş alanlar atlanır. Dosyalar ayrıca yüklenir.
+      const data = {};
+      const files = [];
+      fields.forEach((f) => {
+        if (isSkipped(f.step) || isHidden(f)) return;
+        if (f.type === "file") {
+          const file = fileOf(f);
+          if (file) files.push({ column: f.name, file });
+          return;
+        }
+        const values = valuesOf(f);
+        if (values.length) data[f.name] = f.type === "check" ? values : values[0];
+      });
+      if (!isMinor()) data["Başvuruyu yapan kişi"] = "Adayın kendisi (18 yaş ve üzeri)";
+
+      let recordId = null;
+      setBusy(true);
+      try {
+        recordId = await createRecord(data);
+        for (const [i, { column, file }] of files.entries()) {
+          setBusy(true, `Dosyalar yükleniyor (${i + 1}/${files.length})...`);
+          await uploadFile(recordId, column, file);
+        }
+        resetForm();
+        showStep(0, { keepStatus: true });
+        setStatus("Başvurunuz başarıyla alındı. İlginiz için teşekkür ederiz; uygun projelerde sizinle iletişime geçilecektir.", "success");
+      } catch (err) {
+        console.error("Airtable gönderim hatası:", err);
+        if (recordId) {
+          // Kayıt oluştu ama dosya yüklenemedi: tekrar gönderilirse aynı başvuru iki kez kaydedilir.
+          resetForm();
+          showStep(0, { keepStatus: true });
+          setStatus("Başvurunuz alındı ancak dosyalarınız yüklenemedi. Lütfen dosyalarınızı diyarbakirsinemaofisi@gmail.com adresine e-posta ile gönderin.", "error");
+        } else {
+          setStatus("Başvurunuz gönderilemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.", "error");
+        }
+      } finally {
+        setBusy(false);
+      }
+    });
+    showStep(0, { scroll: false });
+  }
 
 
   /* ---------- Footer yılı ---------- */
   document.getElementById("year").textContent = new Date().getFullYear();
 });
+
