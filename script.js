@@ -712,28 +712,37 @@ document.addEventListener("DOMContentLoaded", () => {
       post("/dosya", { ...record, field: column, contentType: file.type, filename: file.name, file: await toBase64(file) });
 
     /* ---------- Turnstile: robot kontrolü (Worker sunucuda doğrular) ---------- */
-    // Cloudflare'in betiği yalnızca son adıma gelenler için yüklenir
+    // Betik formla ilk etkileşimde arka planda iner; kontrol son adımda başlar
     let turnstileId = null;
     let turnstileToken = "";
-    let turnstileYuklendi = false;
-    const turnstileYukle = () => {
-      if (turnstileYuklendi) return;
-      turnstileYuklendi = true;
-      window.onTurnstileLoad = () => {
-        turnstileId = window.turnstile.render("#castingTurnstile", {
-          sitekey: TURNSTILE_SITE_KEY,
-          language: "tr",
-          appearance: "interaction-only", // çoğu kişi hiçbir şey görmez; şüphelide kutucuk çıkar
-          callback: (t) => { turnstileToken = t; },
-          "expired-callback": () => { turnstileToken = ""; },
-          "error-callback": () => { turnstileToken = ""; },
-        });
-      };
-      const s = document.createElement("script");
-      s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit";
-      s.async = true;
-      document.head.appendChild(s);
+    let turnstileBetik = null;
+    const turnstileBetikYukle = () =>
+      (turnstileBetik ||= new Promise((resolve) => {
+        window.onTurnstileLoad = resolve;
+        const s = document.createElement("script");
+        s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit";
+        s.async = true;
+        document.head.appendChild(s);
+      }));
+    const turnstileYukle = async () => {
+      await turnstileBetikYukle();
+      if (turnstileId !== null) return;
+      turnstileId = window.turnstile.render("#castingTurnstile", {
+        sitekey: TURNSTILE_SITE_KEY,
+        language: "tr",
+        appearance: "interaction-only", // çoğu kişi hiçbir şey görmez; şüphelide kutucuk çıkar
+        callback: (t) => { turnstileToken = t; },
+        "expired-callback": () => { turnstileToken = ""; },
+        "error-callback": () => { turnstileToken = ""; },
+      });
     };
+    // Gönder'e kontrol bitmeden basılırsa hata yerine biraz beklenir
+    const turnstileBekle = (ms = 15000) =>
+      new Promise((resolve) => {
+        const bitis = Date.now() + ms;
+        const kontrol = () => (turnstileToken || Date.now() > bitis ? resolve(turnstileToken) : setTimeout(kontrol, 250));
+        kontrol();
+      });
     // jeton tek kullanımlık: her gönderim denemesinden sonra yenilenir
     const turnstileSifirla = () => {
       turnstileToken = "";
@@ -768,7 +777,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const SON_GONDERIM = "dso_son_basvuru";
     const honeypot = form.querySelector('input[name="website"]');
     // süre, sayfanın açılışından değil formla ilk etkileşimden sayılır (başlangıç: resetForm'un üstünde)
-    form.addEventListener("focusin", () => { if (!baslangic) baslangic = Date.now(); });
+    form.addEventListener("focusin", () => {
+      if (!baslangic) baslangic = Date.now();
+      turnstileBetikYukle();
+    });
 
     const sonGonderim = () => { try { return Number(localStorage.getItem(SON_GONDERIM)) || 0; } catch { return 0; } };
     const gonderimiKaydet = () => { try { localStorage.setItem(SON_GONDERIM, String(Date.now())); } catch {} };
@@ -807,6 +819,12 @@ document.addEventListener("DOMContentLoaded", () => {
         setStatus("Form şu an bakımda, lütfen daha sonra tekrar deneyin.", "error");
         console.warn("TURNSTILE_SITE_KEY doldurulmalı (script.js başı).");
         return;
+      }
+      if (!turnstileToken) {
+        setBusy(true, "Güvenlik kontrolü yapılıyor...");
+        turnstileYukle();
+        await turnstileBekle();
+        setBusy(false);
       }
       if (!turnstileToken) {
         setStatus("Robot kontrolü henüz tamamlanmadı. Lütfen birkaç saniye bekleyip tekrar deneyin; reklam engelleyici kullanıyorsanız bu sayfa için kapatın.", "error");
