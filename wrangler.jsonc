@@ -1,0 +1,17 @@
+// Site: Cloudflare Workers'ta statik dosya olarak yayınlanır (GitHub'a her push'ta otomatik).
+// Kayıt formunun sunucusu ayrı bir Worker'dır: worker/
+{
+  "name": "diyarbakir-sinema-ofisi",
+  "compatibility_date": "2026-10-01",
+  // site yalnızca kendi domain'inde açılsın (workers.dev kopyası Google'da çift içerik olur)
+  "workers_dev": false,
+  "preview_urls": false,
+  "assets": {
+    "directory": ".",
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    { "pattern": "diyarbakirsinemaofisi.com", "custom_domain": true },
+    { "pattern": "www.diyarbakirsinemaofisi.com", "custom_domain": true }
+  ]
+}

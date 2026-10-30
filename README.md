@@ -179,7 +179,8 @@ Column names in Airtable must match the form exactly, down to the punctuation. I
 │   └── wrangler.toml        # Worker settings (secrets are set with `wrangler secret put`)
 ├── apps-script/
 │   └── basvuru-pdf.example.gs   # Google Apps Script: Airtable → PDF → email (token removed)
-├── 404.html · robots.txt · og.jpg
+├── 404.html · robots.txt · sitemap.xml · og.jpg
+├── wrangler.jsonc · .assetsignore   # the site itself is served as static assets on Cloudflare Workers
 ├── logo/ · movie-img/ · galeri/ · img/hero.jpg
 └── docs/screenshots/        # images used in this README
 ```

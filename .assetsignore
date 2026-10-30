@@ -1,0 +1,18 @@
+# Siteye yüklenmeyecek dosyalar (yalnızca GitHub'da dursun)
+.git
+.gitignore
+.assetsignore
+.DS_Store
+wrangler.jsonc
+README.md
+docs/
+worker/
+apps-script/
+node_modules/
+.wrangler/
+# Bilgisayarda kalan, git'te olmayan dosyalar (yerelden yayın yapılırsa da gitmesin)
+config.js
+google-apps-script/
+background/
+img/*
+!img/hero.jpg
