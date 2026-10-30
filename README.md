@@ -22,6 +22,17 @@ It is a static site with no framework and no paid backend. Applicants fill in an
 
 ![Footer film strip](docs/screenshots/footer.jpg)
 
+### More screenshots
+
+| | |
+|---|---|
+| ![Projects](docs/screenshots/projects.jpg) | ![Services](docs/screenshots/services.jpg) |
+| **Projects**: poster grid with hover details | **Services**: six service areas, with one wide card listing logistics |
+| ![Gallery](docs/screenshots/gallery.jpg) | ![Lightbox](docs/screenshots/lightbox.jpg) |
+| **Gallery**: masonry layout of set photos | **Lightbox**: keyboard arrows, swipe, image counter |
+| ![Review step](docs/screenshots/form-summary.jpg) | ![404 page](docs/screenshots/404.jpg) |
+| **Review step**: every answer grouped by step, with "Edit" links and a portrait preview (sample data) | **404 page**: on-brand error page |
+
 ---
 
 ## The brief
