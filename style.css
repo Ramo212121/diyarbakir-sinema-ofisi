@@ -1094,6 +1094,8 @@ body.no-scroll { overflow: hidden; }
   color: var(--gray-500);
 }
 .to-top:hover { color: var(--accent); }
+.credit a { color: inherit; transition: color .2s; }
+.credit a:hover { color: var(--accent); }
 
 /* ---------- REVEAL ANİMASYONU ---------- */
 .reveal {
@@ -1250,6 +1252,8 @@ body.no-scroll { overflow: hidden; }
   .footer__inner { grid-template-columns: 1fr; gap: 28px; padding-bottom: 40px; }
   .footer__logo { width: 180px; }
   .footer__bottom { flex-direction: column; gap: 10px; }
+  .credit { display: block; margin-top: 6px; }
+  .credit__sep { display: none; }
 
   /* film penceresi telefonda alttan açılan panel olsun */
   .film-modal {
