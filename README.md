@@ -4,7 +4,7 @@ A website and an actor/cast registration system for **Diyarbakır Sinema Ofisi**
 
 It is a static site with no framework and no paid backend. Applicants fill in an 8-step form. A small Cloudflare Worker checks each submission and writes the data and photos to Airtable, and a scheduled Google Apps Script emails the agency a print-ready PDF of every application.
 
-> **Live site:** _coming soon_ · **Status:** client project, ready for launch
+> **Live site:** [diyarbakirsinemaofisi.com](https://diyarbakirsinemaofisi.com) · **Status:** client project, live since October 2026
 > The site is in Turkish; the code comments are in Turkish as well.
 
 ![Homepage](docs/screenshots/hero.jpg)
@@ -51,7 +51,7 @@ The client wanted three things:
 
 ## My role
 
-I handled design and development end to end, from the first layout to a launch-ready site:
+I handled design and development end to end, from the first layout to the live site:
 
 - visual identity on the web: type, colour, motion,
 - front-end development,
@@ -113,6 +113,7 @@ flowchart LR
 ```
 
 - **No server to maintain.** The site is plain HTML, CSS and JavaScript. The only server-side code is one Worker file on Cloudflare's free plan.
+- **Hosting:** the site is served as static assets on Cloudflare Workers and redeploys automatically on every push to `main`.
 - **Airtable** is the database the office actually works in day to day.
 - **Apps Script** runs under the office's own Google account: no third-party automation service, no monthly operation limits.
 
@@ -202,9 +203,7 @@ On `localhost` the site talks to the local Worker and uses Turnstile's test keys
 
 ## Roadmap
 
-- [ ] **Privacy notice (KVKK, Turkey's data protection law)** and the consent checkboxes that go with it. The client's lawyer is preparing them.
 - [ ] Self-hosted fonts, so no visitor data goes to third parties.
-- [ ] Canonical URL, sitemap and absolute Open Graph URLs once the domain is live.
 
 ---
 

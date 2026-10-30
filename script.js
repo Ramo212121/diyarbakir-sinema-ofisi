@@ -297,9 +297,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ],
       },
       {
-        title: "7. KVKK Bilgilendirmesi ve Başvuru Beyanı",
-        short: "KVKK ve onay",
-        note: "Kişisel verileriniz yalnızca casting değerlendirmesi amacıyla işlenir. Profilinizin yapım şirketleriyle paylaşılmasına izin vermemeniz başvurunuzu engellemez.",
+        title: "7. Başvuru Beyanı ve Onay",
+        short: "Beyan ve onay",
+        note: "Bilgileriniz yalnızca casting değerlendirmesi için kullanılır ve izniniz olmadan üçüncü kişilerle paylaşılmaz. Profilinizin yapım şirketleriyle paylaşılmasına izin vermemeniz başvurunuzu engellemez.",
         fields: [
           { name: "Bilgilerinizi doğru verdiğinizi ve başvuru koşullarını okuduğunuzu onaylıyor musunuz?", type: "radio", required: true, mustBe: "Evet, onaylıyorum",
             options: ["Evet, onaylıyorum", "Hayır"], full: true },
