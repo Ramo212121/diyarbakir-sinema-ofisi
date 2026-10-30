@@ -5,6 +5,7 @@
 .DS_Store
 wrangler.jsonc
 README.md
+LICENSE
 docs/
 worker/
 apps-script/

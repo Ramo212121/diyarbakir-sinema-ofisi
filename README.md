@@ -209,4 +209,4 @@ On `localhost` the site talks to the local Worker and uses Turnstile's test keys
 
 Built by **Ramazan Karahan** · [GitHub](https://github.com/Ramo212121)
 
-The code is shared as a portfolio piece. The logo, photographs, film posters and texts belong to Diyarbakır Sinema Ofisi and may not be reused.
+The code is shared as a portfolio piece and is not open source: all rights reserved (see [LICENSE](LICENSE)). The logo, photographs, film posters and texts belong to Diyarbakır Sinema Ofisi and may not be reused.
