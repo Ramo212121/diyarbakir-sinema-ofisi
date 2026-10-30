@@ -1505,3 +1505,5 @@ body.no-scroll { overflow: hidden; }
 
 /* bal tuzağı alanı: ekran dışında, ekran okuyucudan da gizli */
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.cf__turnstile { margin-top: 16px; }
+.cf__turnstile:empty { display: none; }

@@ -3,10 +3,13 @@
    Vanilla JS
    ========================================================== */
 
-/* ---------- Airtable bağlantısı ---------- */
-// Bilgiler config.js'ten gelir; o dosya git'e girmez (.gitignore).
-// Örnek için config.example.js'e bakın.
-const { AIRTABLE_API_KEY = "", AIRTABLE_BASE_ID = "", AIRTABLE_TABLE_NAME = "" } = window.DSO_CONFIG || {};
+/* ---------- Kayıt formu sunucusu ---------- */
+// Form Airtable'a doğrudan değil, Cloudflare Worker'a gönderir (worker/ klasörü).
+// Bu iki değer gizli değildir; Airtable token'ı yalnızca Worker'da durur.
+// Bilgisayarda (localhost) "npm run dev" ile açılan Worker ve Turnstile'ın test anahtarı kullanılır.
+const YEREL = ["localhost", "127.0.0.1"].includes(location.hostname);
+const KAYIT_API = YEREL ? "http://localhost:8787" : "https://api.diyarbakirsinemaofisi.com";
+const TURNSTILE_SITE_KEY = YEREL ? "1x00000000000000000000AA" : "0x4AAAAAAFsVf1scQcPrbdmm";
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -378,7 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
       step.innerHTML = `<legend class="step__title">${esc(section.title)}</legend><p class="step__note">${esc(section.note)}</p>`;
 
       if (section.summary) {
-        step.insertAdjacentHTML("beforeend", `<div class="summary" id="castingSummary"></div>`);
+        step.insertAdjacentHTML("beforeend", `<div class="summary" id="castingSummary"></div><div class="cf__turnstile" id="castingTurnstile"></div>`);
       } else {
         const grid = document.createElement("div");
         grid.className = "fields";
@@ -600,7 +603,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("castingStepName").textContent = SECTIONS[i].title.replace(/^\d+\.\s*/, "");
       document.getElementById("castingProgress").style.width = `${((i + 1) / steps.length) * 100}%`;
 
-      if (i === LAST) renderSummary();
+      if (i === LAST) { renderSummary(); turnstileYukle(); }
       if (!keepStatus) setStatus("");
       if (scroll) form.scrollIntoView({ behavior: "smooth", block: "start" });
     };
@@ -690,35 +693,51 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
 
-    const airtableError = async (res, fallback) => {
+    // Worker'ın hata kodu (turnstile, rate, airtable…) err.code olarak taşınır
+    const post = async (path, body) => {
+      const res = await fetch(KAYIT_API + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
       const data = await res.json().catch(() => ({}));
-      return new Error(data.error?.message || data.error?.type || `${fallback} (${res.status})`);
+      if (!res.ok) throw Object.assign(new Error(`${path} (${res.status})`), { code: data.error });
+      return data;
     };
 
-    const createRecord = async (data) => {
-      const res = await fetch(
-        `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${encodeURIComponent(AIRTABLE_TABLE_NAME)}`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}`, "Content-Type": "application/json" },
-          // typecast: tarih ve seçenek alanlarını Airtable kendisi tanısın
-          body: JSON.stringify({ records: [{ fields: data }], typecast: true }),
-        }
-      );
-      if (!res.ok) throw await airtableError(res, "Kayıt oluşturulamadı");
-      return (await res.json()).records[0].id;
-    };
+    // Kayıt { id, ticket } döner; bilet, fotoğrafların yalnızca bu kayda yüklenebilmesini sağlar
+    const createRecord = (data) => post("/basvuru", { fields: data, turnstile: turnstileToken });
 
-    const uploadFile = async (recordId, column, file) => {
-      const res = await fetch(
-        `https://content.airtable.com/v0/${AIRTABLE_BASE_ID}/${recordId}/${encodeURIComponent(column)}/uploadAttachment`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${AIRTABLE_API_KEY}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ contentType: file.type, file: await toBase64(file), filename: file.name }),
-        }
-      );
-      if (!res.ok) throw await airtableError(res, "Dosya yüklenemedi");
+    const uploadFile = async (record, column, file) =>
+      post("/dosya", { ...record, field: column, contentType: file.type, filename: file.name, file: await toBase64(file) });
+
+    /* ---------- Turnstile: robot kontrolü (Worker sunucuda doğrular) ---------- */
+    // Cloudflare'in betiği yalnızca son adıma gelenler için yüklenir
+    let turnstileId = null;
+    let turnstileToken = "";
+    let turnstileYuklendi = false;
+    const turnstileYukle = () => {
+      if (turnstileYuklendi) return;
+      turnstileYuklendi = true;
+      window.onTurnstileLoad = () => {
+        turnstileId = window.turnstile.render("#castingTurnstile", {
+          sitekey: TURNSTILE_SITE_KEY,
+          language: "tr",
+          appearance: "interaction-only", // çoğu kişi hiçbir şey görmez; şüphelide kutucuk çıkar
+          callback: (t) => { turnstileToken = t; },
+          "expired-callback": () => { turnstileToken = ""; },
+          "error-callback": () => { turnstileToken = ""; },
+        });
+      };
+      const s = document.createElement("script");
+      s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit";
+      s.async = true;
+      document.head.appendChild(s);
+    };
+    // jeton tek kullanımlık: her gönderim denemesinden sonra yenilenir
+    const turnstileSifirla = () => {
+      turnstileToken = "";
+      if (turnstileId !== null) window.turnstile.reset(turnstileId);
     };
 
     const setBusy = (busy, label = "Gönderiliyor...") => {
@@ -743,7 +762,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateConditional();
     };
 
-    /* ---------- Spam koruması (botlara karşı; asıl koruma ileride sunucuda) ---------- */
+    /* ---------- Spam koruması: tarayıcı tarafı (asıl koruma Worker'da: Turnstile + IP sınırı) ---------- */
     const MIN_DOLDURMA_SN = 15;        // 8 adımı bundan kısa sürede bitiren insan olmaz
     const TEKRAR_BEKLEME_DK = 10;      // aynı tarayıcıdan art arda başvuru arası
     const SON_GONDERIM = "dso_son_basvuru";
@@ -784,9 +803,13 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      if (!AIRTABLE_API_KEY || !AIRTABLE_BASE_ID || !AIRTABLE_TABLE_NAME || AIRTABLE_API_KEY.startsWith("BURAYA")) {
+      if (TURNSTILE_SITE_KEY.startsWith("BURAYA")) {
         setStatus("Form şu an bakımda, lütfen daha sonra tekrar deneyin.", "error");
-        console.warn("Airtable bilgileri girilmedi: AIRTABLE_API_KEY, AIRTABLE_BASE_ID ve AIRTABLE_TABLE_NAME doldurulmalı.");
+        console.warn("TURNSTILE_SITE_KEY doldurulmalı (script.js başı).");
+        return;
+      }
+      if (!turnstileToken) {
+        setStatus("Robot kontrolü henüz tamamlanmadı. Lütfen birkaç saniye bekleyip tekrar deneyin; reklam engelleyici kullanıyorsanız bu sayfa için kapatın.", "error");
         return;
       }
 
@@ -820,30 +843,35 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      let recordId = null;
+      let record = null;
       setBusy(true);
       try {
-        recordId = await createRecord(data);
+        record = await createRecord(data);
         for (const [i, { column, file }] of files.entries()) {
           setBusy(true, `Dosyalar yükleniyor (${i + 1}/${files.length})...`);
-          await uploadFile(recordId, column, file);
+          await uploadFile(record, column, file);
         }
         gonderimiKaydet();
         resetForm();
         showStep(0, { keepStatus: true });
         setStatus("Başvurunuz başarıyla alındı. İlginiz için teşekkür ederiz; uygun projelerde sizinle iletişime geçilecektir.", "success");
       } catch (err) {
-        console.error("Airtable gönderim hatası:", err);
-        if (recordId) {
+        console.error("Gönderim hatası:", err.code || "", err);
+        if (record) {
           // Kayıt oluştu ama dosya yüklenemedi: tekrar gönderilirse aynı başvuru iki kez kaydedilir.
           resetForm();
           showStep(0, { keepStatus: true });
           setStatus("Başvurunuz alındı ancak dosyalarınız yüklenemedi. Lütfen dosyalarınızı diyarbakirsinemaofisi@gmail.com adresine e-posta ile gönderin.", "error");
+        } else if (err.code === "rate") {
+          setStatus("Bu bağlantıdan son bir saatte çok sayıda başvuru gönderildi. Lütfen daha sonra tekrar deneyin.", "error");
+        } else if (err.code === "turnstile") {
+          setStatus("Robot kontrolü doğrulanamadı. Lütfen birkaç saniye bekleyip tekrar gönderin.", "error");
         } else {
           setStatus("Başvurunuz gönderilemedi. Lütfen bağlantınızı kontrol edip tekrar deneyin.", "error");
         }
       } finally {
         setBusy(false);
+        turnstileSifirla();
       }
     });
     showStep(0, { scroll: false });

@@ -11,3 +11,8 @@ config.js
 background/
 img/*
 !img/hero.jpg
+
+# Worker: bağımlılıklar, yerel gizli ayarlar ve önbellek
+worker/node_modules/
+worker/.dev.vars
+worker/.wrangler/

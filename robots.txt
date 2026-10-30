@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
-# Site yayına girince alan adıyla eklenecek:
-# Sitemap: https://alanadi.com/sitemap.xml
+
+Sitemap: https://diyarbakirsinemaofisi.com/sitemap.xml

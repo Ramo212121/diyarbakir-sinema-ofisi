@@ -1,0 +1,20 @@
+name = "dso-kayit"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+# Worker kendi alt alan adında çalışır (domain Cloudflare hesabında olmalı)
+routes = [{ pattern = "api.diyarbakirsinemaofisi.com", custom_domain = true }]
+
+[vars]
+AIRTABLE_BASE = "appRiiEi3HD8LYRAq"
+AIRTABLE_TABLE = "tblwSjdTU1NeiaUca"   # "Basvurular"
+# Formu gönderebilecek site adresleri (virgülle)
+ALLOWED_ORIGINS = "https://diyarbakirsinemaofisi.com,https://www.diyarbakirsinemaofisi.com,https://diyarbakir-sinema-ofisi.pages.dev,http://localhost:8000"
+
+# IP sınırı ve tek seferlik yükleme kayıtları
+[[kv_namespaces]]
+binding = "RATE"
+id = "c3a6020a2c814fe5993bb85a48c14353"
+
+[observability]
+enabled = true
