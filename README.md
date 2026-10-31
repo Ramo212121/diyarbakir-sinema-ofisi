@@ -96,7 +96,8 @@ I handled design and development end to end, from the first layout to the live s
 - Descriptive title and meta description, plus Open Graph and Twitter cards with a custom 1200×630 share image.
 - **schema.org** graph: the `Organization` plus 12 `Movie` entries with directors, durations and awards.
 - Award lists live in the HTML rather than only in JavaScript, so search engines can index them.
-- `robots.txt` and a branded `404.html`.
+- A dedicated landing page (`/oyuncu-basvurusu`) for applicant searches, with its own title, FAQ and breadcrumb markup.
+- `robots.txt`, a sitemap and a branded `404.html`.
 
 ---
 
@@ -180,7 +181,8 @@ Column names in Airtable must match the form exactly, down to the punctuation. I
 │   └── wrangler.toml        # Worker settings (secrets are set with `wrangler secret put`)
 ├── apps-script/
 │   └── basvuru-pdf.example.gs   # Google Apps Script: Airtable → PDF → email (token removed)
-├── 404.html · robots.txt · sitemap.xml · og.jpg
+├── oyuncu-basvurusu.html    # landing page for people searching for actor applications in Diyarbakır
+├── 404.html · robots.txt · sitemap.xml · og.jpg · favicon.ico
 ├── wrangler.jsonc · .assetsignore   # the site itself is served as static assets on Cloudflare Workers
 ├── logo/ · movie-img/ · galeri/ · img/hero.jpg
 └── docs/screenshots/        # images used in this README
